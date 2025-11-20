@@ -1,0 +1,29 @@
+[package]
+name = "git-nexus-desktop"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+
+[[bin]]
+name = "git-nexus"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+serde_json.workspace = true
+git-nexus-core = { path = "../core" }
+gpui = { version = "=0.2.2", default-features = false, features = ["font-kit", "x11", "windows-manifest"] }
+gpui-component = "=0.5.1"
+env_logger = "0.11"
+futures = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "rustls-tls-native-roots"] }
+chrono = "0.4"
+
+[features]
+wayland = ["gpui/wayland"]
+
+[build-dependencies]
+embed-resource = "=3.0.11"
+
+[dev-dependencies]
+tempfile = "3"

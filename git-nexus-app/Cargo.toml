@@ -1,0 +1,26 @@
+[workspace]
+members = ["crates/core", "crates/desktop"]
+default-members = ["crates/desktop"]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+license-file = "../LICENSE.md"
+
+[workspace.dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# GPUI's archive dependency uses xattr 0.2, whose Linux errno alias was
+# removed in libc. Preserve the upstream crate and use Linux's ENODATA.
+[patch.crates-io]
+xattr = { path = "vendor/xattr" }
+gpui-component = { path = "vendor/gpui-component" }
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0

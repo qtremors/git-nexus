@@ -1,0 +1,30 @@
+# Local settings and application data
+.env
+.env.*
+data/
+native-data/
+workspaces/
+downloads/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+secret.key
+
+# Build outputs
+target/
+dist/
+build/
+
+# Editors and operating systems
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

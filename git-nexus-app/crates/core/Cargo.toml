@@ -1,0 +1,22 @@
+[package]
+name = "git-nexus-core"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono = { version = "0.4", features = ["serde"] }
+directories = "6"
+fernet = { version = "0.2", default-features = false, features = ["rustcrypto"] }
+percent-encoding = "2"
+reqwest = { version = "0.12", default-features = false, features = ["blocking", "json", "rustls-tls-native-roots"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+tiny_http = "0.12"
+tempfile = "3"
