@@ -1,0 +1,86 @@
+/* =========================================
+             CSS Variables & Themes
+   ========================================= */
+
+:root {
+    --border-radius-sm: 8px;
+    --border-radius-md: 16px;
+    --border-radius-lg: 24px;
+    --transition-speed: 0.3s;
+}
+
+/* --- Default Theme - Github Contrast (Dark Contrast) --- */
+body.theme-default {
+    --md-sys-color-primary: #1F6FEB;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #0C2D64;
+    --md-sys-color-on-primary-container: #FFFFFF;
+    --md-sys-color-secondary: #238636;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #004D1B;
+    --md-sys-color-on-secondary-container: #FFFFFF;
+    --md-sys-color-background: #06090F;
+    --md-sys-color-on-background: #F0F6FC;
+    --md-sys-color-surface: #0D1117;
+    --md-sys-color-surface-variant: #161B22;
+    --md-sys-color-on-surface: #F0F6FC;
+    --md-sys-color-on-surface-variant: #C9D1D9;
+    --md-sys-color-outline: #21262D;
+    --md-sys-color-error: #DA3633;
+}
+
+/* --- GitHub Dark Theme (Dark Dimmed) --- */
+body.theme-regular {
+    --md-sys-color-primary: #58A6FF;
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-primary-container: #1F6FEB;
+    --md-sys-color-on-primary-container: #FFFFFF;
+    --md-sys-color-secondary: #3FB950;
+    --md-sys-color-on-secondary: #FFFFFF;
+    --md-sys-color-secondary-container: #308146;
+    --md-sys-color-on-secondary-container: #FFFFFF;
+    --md-sys-color-background: #0D1117;
+    --md-sys-color-on-background: #C9D1D9;
+    --md-sys-color-surface: #161B22;
+    --md-sys-color-surface-variant: #21262D;
+    --md-sys-color-on-surface: #C9D1D9;
+    --md-sys-color-on-surface-variant: #8B949E;
+    --md-sys-color-outline: #30363D;
+    --md-sys-color-error: #F85149;
+}
+
+/* --- Custom Theme (Dark Blue) --- */
+body.theme-contrast {
+    --md-sys-color-primary: #0085D0;
+    --md-sys-color-on-primary: #000000;
+    --md-sys-color-primary-container: #4F378B;
+    --md-sys-color-on-primary-container: #EADDFF;
+    --md-sys-color-secondary: #03DAC6;
+    --md-sys-color-on-secondary: #000000;
+    --md-sys-color-secondary-container: #03DAC6;
+    --md-sys-color-on-secondary-container: #000000;
+    --md-sys-color-background: #121212;
+    --md-sys-color-on-background: #E1E1E1;
+    --md-sys-color-surface: #1E1E1E;
+    --md-sys-color-surface-variant: #252525;
+    --md-sys-color-on-surface: #E1E1E1;
+    --md-sys-color-on-surface-variant: #C9C9C9;
+    --md-sys-color-outline: #3E3E3E;
+    --md-sys-color-error: #CF6679;
+}
+
+
+/* =========================================
+         Responsive Overrides (Mobile)
+   ========================================= */
+
+@media (max-width: 480px) {
+    .main-content { padding: 16px; }
+    .header { padding: 16px; }
+    .controls-container, .settings-container { width: 100%; gap: 8px; }
+    .input-group { width: 100%; }
+    input[type="text"], input[type="password"] { width: 100%; }
+    .sort-group { width: 100%; }
+    .select-wrapper { flex-grow: 1; }
+    .styled-select { width: 100%; }
+}
