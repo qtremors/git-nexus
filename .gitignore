@@ -1,0 +1,52 @@
+# -------------------------
+# Python / Flask ignores
+# -------------------------
+
+# Bytecode cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Flask instance folder (stores secrets + DBs)
+instance/
+*.db
+*.sqlite3
+
+# Environment variables / secrets
+.env
+*.env
+
+# pyproject / build artifacts
+build/
+dist/
+*.egg-info/
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Python version file
+.python-version
+
+# Uvicorn / UWSGI / Gunicorn temp files
+*.pid
+
+# OS-specific junk
+.DS_Store
+Thumbs.db
+
+# Lockfiles created by package managers
+uv.lock
+
+# Backup files created by editors
+*.swp
+*.swo
+*~

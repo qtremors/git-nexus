@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitNexus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link rel="icon" href="{{ url_for('static', filename='assets/octocat.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="theme-default"> 
+    <header class="header">
+        <div class="header-title">
+            <span class="material-symbols-outlined">hub</span>
+            <h1>GitNexus</h1>
+        </div>
+        <div class="controls-container">
+            <div class="input-group">
+                <span class="material-symbols-outlined">person</span>
+                <input type="text" id="username-input" value="qtremors" placeholder="GitHub Username">
+            </div>
+            <div class="input-group">
+                <span class="material-symbols-outlined">key</span>
+                <input type="password" id="token-input" placeholder="GitHub Token (Optional)">
+            </div>
+            <button id="fetch-btn" class="btn btn-filled">
+                <span class="material-symbols-outlined">search</span>
+                <span>Fetch Repos</span>
+            </button>
+            <button id="refresh-btn" class="btn btn-outlined">
+                <span class="material-symbols-outlined">refresh</span>
+                <span>Refresh</span>
+            </button>
+        </div>
+        <div class="settings-container">
+             <div class="input-group theme-switcher">
+                <span class="material-symbols-outlined">desktop_windows</span>
+                <div class="select-wrapper">
+                    <select id="theme-select" class="styled-select">
+                        <option value="default">Default Dark</option>
+                        <option value="regular">GitHub Dark</option>
+                        <option value="contrast">GitHub Contrast</option>
+                    </select>
+                    <span class="material-symbols-outlined">arrow_drop_down</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section id="profile-section" class="profile-container" style="display: none;">
+            <img id="profile-avatar" src="" alt="User Avatar" class="profile-avatar">
+            <div class="profile-details">
+                <a id="profile-link" href="" target="_blank" rel="noopener noreferrer" class="profile-name-link">
+                    <h2 id="profile-name" class="profile-name"></h2>
+                    <p id="profile-login" class="profile-login"></p>
+                </a>
+                <p id="profile-bio" class="profile-bio"></p>
+                <div class="profile-stats">
+                    <span id="profile-followers" class="stat-item"></span>
+                    <span id="profile-following" class="stat-item"></span>
+                    <span id="profile-repos" class="stat-item"></span>
+                    <button id="download-repos-btn" class="btn btn-icon download-profile-btn" title="Download Repos">
+                        <span class="material-symbols-outlined">download</span>
+                    </button>
+                    <span id="profile-commits" class="stat-item"></span>
+                </div>
+            </div>
+        </section>
+
+        <section id="profile-readme-container" class="profile-readme-container" style="display: none;">
+            <div id="profile-readme-content" class="readme-container"></div>
+        </section>
+
+        <div class="filter-sort-controls">
+            <div class="input-group filter-group">
+                <span class="material-symbols-outlined">filter_alt</span>
+                <input type="text" id="filter-input" placeholder="Filter by name...">
+            </div>
+             <div class="input-group filter-group commit-filter-group" id="commit-filter-container" style="display: none;">
+                <span class="material-symbols-outlined">commit</span>
+                <input type="number" id="commit-filter-min" placeholder="Min">
+                <input type="number" id="commit-filter-max" placeholder="Max">
+            </div>
+            <div class="sort-group">
+                <div class="select-wrapper">
+                    <select id="sort-select" class="styled-select">
+                        <option value="updated" selected>Sort by Last Updated</option>
+                        <option value="created">Sort by Creation Date</option>
+                        <option value="stars">Sort by Stars</option>
+                        <option value="name">Sort by Name</option>
+                        <option value="commits">Sort by Commits</option>
+                    </select>
+                    <span class="material-symbols-outlined">arrow_drop_down</span>
+                </div>
+                <button id="sort-direction-btn" class="btn btn-icon" aria-label="Sort Direction">
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                </button>
+                 <div class="select-wrapper">
+                    <select id="language-select" class="styled-select">
+                        <option value="all">All Languages</option>
+                    </select>
+                    <span class="material-symbols-outlined">arrow_drop_down</span>
+                </div>
+                <div class="select-wrapper">
+                    <select id="topic-select" class="styled-select">
+                        <option value="all">All Topics</option>
+                    </select>
+                    <span class="material-symbols-outlined">arrow_drop_down</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="loader" class="loader-container" style="display: none;">
+            <div class="loader"></div>
+        </div>
+
+        <p id="error-message" class="error-message"></p>
+        
+        <div id="skeleton-loader" class="repo-list" style="display: none;">
+             <div class="skeleton-card"><div class="skeleton-text-lg"></div><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div><div class="skeleton-stats"><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div></div></div>
+             <div class="skeleton-card"><div class="skeleton-text-lg"></div><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div><div class="skeleton-stats"><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div></div></div>
+             <div class="skeleton-card"><div class="skeleton-text-lg"></div><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div><div class="skeleton-stats"><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div><div class="skeleton-text-sm"></div></div></div>
+        </div>
+        
+        <div id="repo-list" class="repo-list"></div>
+    </main>
+
+    <div id="readme-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="modal-close-btn" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+            <h3 class="modal-title">README.md</h3>
+            <div id="modal-loader" class="loader-container"><div class="loader"></div></div>
+            <div id="readme-content" class="readme-container"></div>
+        </div>
+    </div>
+    
+    <div id="commits-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="commits-modal-close-btn" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+            <h3 id="commits-modal-title" class="modal-title">Commit History</h3>
+            <div id="commits-modal-loader" class="loader-container"><div class="loader"></div></div>
+            <div id="commits-list-content" class="commits-list-container"></div>
+        </div>
+    </div>
+    
+    <div id="download-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <button id="download-modal-close-btn" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+            <h3 id="download-modal-title" class="modal-title">Download Repositories</h3>
+            <div class="download-controls">
+                <label class="download-select-all-label">
+                    <input type="checkbox" id="download-select-all">
+                    <span>Select All</span>
+                </label>
+            </div>
+            <div id="download-list-content" class="download-list-container"></div>
+            <div class="modal-footer">
+                 <button id="download-selected-btn" class="btn btn-filled">
+                    <span class="material-symbols-outlined">download</span>
+                    <span>Download Selected</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-notification" class="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
