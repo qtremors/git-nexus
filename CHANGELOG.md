@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.0.3
-> **Last Updated:** 2025-11-20
+> **Version:** 0.0.4
+> **Last Updated:** 2025-11-23
 
 ---
+
+## [0.0.4] - 2025-11-23
+
+- Added SQLite preferences, encrypted tokens, retained-key checks, caches and local activity logs.
 
 ## [0.0.3] - 2025-11-20
 
