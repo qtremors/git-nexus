@@ -4,6 +4,12 @@
 
 Built with **Flask** and **Vanilla JavaScript**, it solves the problem of API rate limiting by caching data in a local SQLite database, making repeated searches instant.
 
+## 🌐 Live Demo (Legacy Version)
+> **Note:** The live link below demonstrates the frontend interface (v0.1.0). 
+> The current version (v1.0.0) in this repository features a Flask backend with caching and advanced filtering, which requires local installation.
+
+* **View Legacy Static Demo:** [https://qtremors.github.io/repo-nav](https://qtremors.github.io/repo-nav/)
+
 
 ## ✨ Features
 
