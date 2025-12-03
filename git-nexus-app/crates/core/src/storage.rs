@@ -414,6 +414,72 @@ impl Store {
         tx.commit()?;
         Ok(())
     }
+
+    pub fn env_vars(&self, scope: &str, repo: i64, hash: &str) -> Result<Vec<EnvVar>> {
+        validate_scope(scope, repo, hash)?;
+        let mut statement=self.db.prepare("SELECT key,value FROM env_vars WHERE scope=? AND repository_id=? AND commit_hash=? ORDER BY key")?;
+        let encrypted = statement
+            .query_map(params![scope, repo, hash], |r| {
+                Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?))
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?;
+        encrypted
+            .into_iter()
+            .map(|(key, value)| {
+                Ok(EnvVar {
+                    key,
+                    value: self.decrypt(&value)?,
+                })
+            })
+            .collect()
+    }
+
+    pub fn save_env(
+        &mut self,
+        scope: &str,
+        repo: i64,
+        hash: &str,
+        values: &[EnvVar],
+    ) -> Result<()> {
+        validate_scope(scope, repo, hash)?;
+        for var in values {
+            validate_env_key(&var.key)?;
+        }
+        let cipher = &self.cipher;
+        let tx = self.db.transaction()?;
+        tx.execute(
+            "DELETE FROM env_vars WHERE scope=? AND repository_id=? AND commit_hash=?",
+            params![scope, repo, hash],
+        )?;
+        for var in values {
+            tx.execute(
+                "INSERT INTO env_vars VALUES(?,?,?,?,?)",
+                params![
+                    var.key,
+                    cipher.encrypt(var.value.as_bytes()),
+                    scope,
+                    repo,
+                    hash
+                ],
+            )?;
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    pub fn merged_env(&self, repo: i64, hash: &str) -> Result<BTreeMap<String, String>> {
+        let mut result = BTreeMap::new();
+        for (scope, id, commit) in [
+            ("global", 0, ""),
+            ("project", repo, ""),
+            ("commit", repo, hash),
+        ] {
+            for var in self.env_vars(scope, id, commit)? {
+                result.insert(var.key, var.value);
+            }
+        }
+        Ok(result)
+    }
 }
 
 fn write_private_new(path: &Path, content: &[u8]) -> Result<()> {

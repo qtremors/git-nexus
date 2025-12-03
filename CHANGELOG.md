@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.0.6
+> **Version:** 0.0.7
 > **Last Updated:** 2025-12-03
 
 ---
+
+## [0.0.7] - 2025-12-03
+
+- Added encrypted global, project and commit values with explicit precedence.
 
 ## [0.0.6] - 2025-12-03
 
