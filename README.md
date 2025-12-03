@@ -1,70 +1,69 @@
-# 🧭 GitNexus (v1.0.0)
+# 🧭 GitNexus (v2.0.0)
 
-**GitNexus** is a powerful, self-hosted web application for exploring and filtering GitHub repositories. It serves as a robust interface to the GitHub API, featuring server-side caching, advanced filtering, and a clean, responsive UI.
+**GitNexus** is a self-hosted **GitHub Asset Manager & Watchtower**. It has evolved from a simple repository viewer into a powerful tool that allows you to track your favorite repositories, detect new software releases, and download assets directly to your local machine without browser restrictions.
 
-Built with **Flask** and **Vanilla JavaScript**, it solves the problem of API rate limiting by caching data in a local SQLite database, making repeated searches instant.
+Beyond just viewing repositories, GitNexus now acts as a personal "App Store" dashboard for your GitHub tools.
 
-## 🌐 Live Demo (Legacy Version)
-> **Note:** The live link below demonstrates the frontend interface (v0.1.0). 
-> The current version (v1.0.0) in this repository features a Flask backend with caching and advanced filtering, which requires local installation.
+---
 
-* **View Legacy Static Demo:** [https://qtremors.github.io/repo-nav](https://qtremors.github.io/repo-nav/)
+## ✨ Key Features
 
+### 🔭 Asset Watchlist (v2.0)
+* **Track Repositories:** Add any public GitHub repository to your personal watchlist using its URL.
+* **Update Detection:** Automatically compares the latest release tag on GitHub with your locally tracked version.
+* **Visual Indicators:** Cards glow green 🟢 when an update is available.
+* **Release History:** View the latest 3 releases and their assets in an accordion view without leaving the dashboard.
 
-## ✨ Features
+### 📥 Power Downloader
+* **Server-Side Downloading:** Assets are downloaded by the Python backend, bypassing browser pop-up blockers and speed throttling.
+* **Custom Storage:** Configure a specific folder (e.g., `D:/MyTools`) where downloads are saved.
+* **Auto-Organization:** Files are automatically sorted into subfolders: `/Downloads/RepoName/FileName`.
 
-* **🔍 Deep Repository Search:** Instantly fetch and display all public repositories for any GitHub user.
-* **⚡ Server-Side Caching:** automatically caches API responses (Profiles, Repo Lists, READMEs) in a local SQLite database (`project.db`) for 30 minutes. This drastically reduces API calls and speeds up subsequent loads.
-* **📂 Advanced Filtering:**
-    * Filter by Repository Name.
-    * Filter by **Language** (Python, JavaScript, Go, etc.).
-    * Filter by **Topics**.
-    * Filter by **Commit Count** (Min/Max range).
-* **📄 Markdown Rendering:** View repository `README.md` files rendered beautifully in a modal without leaving the app.
-* **clock_history Commit History:** Browse the latest commits for any repository directly within the interface.
-* **🎨 Theming:** Three built-in themes:
-    * **Default:** High Contrast Dark.
-    * **Regular:** GitHub Dimmed.
-    * **Contrast:** Deep Blue/Purple.
-* **📥 Direct Downloads:** One-click download for repository source code (`.zip`).
+### 🔍 Discovery & Analysis
+* **Deep User Search:** Fetch and filter all public repositories for any user.
+* **Advanced Filtering:** Filter by Language, Topic, Star count, and Commit activity.
+* **Markdown Viewer:** Render `README.md` files instantly in a modal.
+* **Analytics:** View visualizations of repository data and commit history.
 
+### ⚙️ Advanced Configuration
+* **Data Portability:** Import and Export your watchlist as JSON to sync between machines.
+* **Theme Engine:** Choose between **Dark Contrast**, **Dimmed**, and **Deep Blue** themes.
+* **Token Management:** Securely store your GitHub Personal Access Token to increase API rate limits (5,000 req/hr).
+
+---
 
 ## 🛠️ Tech Stack
 
-* **Backend:** Python, Flask, SQLAlchemy (SQLite).
-* **Frontend:** HTML5, CSS3 (CSS Variables), JavaScript (ES6+).
+* **Backend:** Python 3.11+, Flask, SQLAlchemy (SQLite).
+* **Frontend:** Vanilla JavaScript (ES6 Modules), CSS3 Variables, Glassmorphism UI.
 * **API:** GitHub REST API.
-* **Utilities:** `marked.js` (Markdown parsing).
+* **Libraries:** `marked.js` (Markdown parsing).
 
+---
 
 ## 🚀 Installation & Setup
 
 ### Prerequisites
 * Python 3.11+
-* `uv` by astral **(Python Package & Environment Manager)**
-```bash
-# uv installation command
-pip install uv
-```
+* `uv` (Python Package Manager)
 
 ### 1. Clone the Repository
 ```bash
 git clone https://github.com/qtremors/git-nexus.git
-```
-
-### 2. Install Dependencies & activate the virtual environment
-
-```python
-# Change the directory to the repo
 cd git-nexus
+````
 
-# create the environment and install dependencies
+### 2. Install Dependencies
+
+Using `uv` (Recommended):
+
+```bash
 uv sync
 ```
 
 ### 3. Run the Application
 
-```python
+```bash
 uv run app.py
 ```
 
@@ -72,7 +71,7 @@ uv run app.py
 
 Open your browser and navigate to:
 
-http://127.0.0.1:5000
+**http://127.0.0.1:5000**
 
 ---
 
@@ -83,35 +82,40 @@ Plaintext
 ```
 gitnexus/
 ├── instance/
-│   └── project.db       # SQLite Database (Auto-created)
+│   └── project.db       # SQLite Database (Stores Watchlist & Cache)
 ├── static/
-│   ├── assets/          # Images and Icons
-│   ├── css/
-│   │   ├── style.css    # Base layout & typography
-│   │   ├── repo.css     # Repository grid & card styles
-│   │   └── theme.css    # Color variables & themes
-│   └── js/
-│       └── script.js    # Frontend logic (Fetch, Modals, UI)
+│   ├── css/             # Modular CSS
+│   │   ├── header.css
+│   │   ├── watchlist.css
+│   │   ├── settings.css
+│   │   └── ...
+│   ├── js/              # ES6 Modules
+│   │   ├── main.js      # Discover Page Logic
+│   │   ├── watchlist.js # Dashboard Logic
+│   │   ├── api.js       # Centralized API Handler
+│   │   └── ...
 ├── templates/
-│   └── index.html       # Main Application View
-├── app.py               # Flask Backend & API Routes
-├── models.py            # Database Models (CacheEntry)
-└── README.md            # Documentation
+│   ├── partials/        # Reusable HTML Components
+│   ├── index.html       # Discover Page
+│   ├── watchlist.html   # Watchlist Dashboard
+│   └── settings.html    # Configuration Page
+├── app.py               # Flask Entry Point
+├── api.py               # API Routes & Logic
+├── models.py            # DB Models (TrackedRepo, CacheEntry)
+└── services.py          # GitHub API Interaction Helpers
 ```
 
 ---
 
-## ⚙️ Configuration
+## ⚙️ Configuration Guide
 
-### GitHub Token (Optional but Recommended)
-
-To increase your API rate limit (from 60 requests/hr to 5,000/hr), you can input a **Personal Access Token** in the UI.
-
-1. Generate a token at [GitHub Settings > Developer Settings](https://github.com/settings/tokens).
+1. **Set Download Path:** Go to **Settings > Local Storage** and enter an absolute path (e.g., `C:/Users/You/Downloads/GitNexus`).
     
-2. Paste it into the "GitHub Token" field in the GitNexus header.
+2. **Add Token:** Go to **Settings > GitHub Access** and paste a classic Personal Access Token (read-only is fine) to avoid rate limits.
     
-3. The token is sent securely to the Flask backend for that session's requests.
+3. **Import Data:** Use the **Import JSON** feature to restore a previously exported watchlist.
+    
 
 ---
+
 Made with 💖 by **Tremors**

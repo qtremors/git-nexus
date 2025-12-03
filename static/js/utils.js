@@ -1,6 +1,7 @@
 export function showToast(message) {
   const toastNotification = document.getElementById('toast-notification');
-  // Clear any existing timer if stored on the element
+  if (!toastNotification) return; // Safety check
+
   if (toastNotification.dataset.timer) clearTimeout(parseInt(toastNotification.dataset.timer));
 
   toastNotification.textContent = message;
@@ -19,10 +20,26 @@ export function copyToClipboard(text) {
 }
 
 export function applyTheme(themeName) {
-  const themeSelect = document.getElementById('theme-select');
+  // 1. Apply class to body
   document.body.className = `theme-${themeName}`;
-  themeSelect.value = themeName;
+
+  // 2. Save preference
   localStorage.setItem('gh_theme', themeName);
+
+  // 3. Update Dropdown (Only if it exists on this page)
+  const themeSelect = document.getElementById('theme-select');
+  if (themeSelect) {
+    themeSelect.value = themeName;
+  }
+
+  // 4. Update Theme Cards (Only if on Settings page)
+  const themeOptions = document.querySelectorAll('.theme-option');
+  if (themeOptions.length > 0) {
+    themeOptions.forEach(opt => {
+      if (opt.dataset.theme === themeName) opt.classList.add('active');
+      else opt.classList.remove('active');
+    });
+  }
 }
 
 export function getLangColor(lang) {

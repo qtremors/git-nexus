@@ -1,53 +1,131 @@
 .header {
     background-color: rgba(13, 17, 23, 0.85);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    padding: 16px 30px;
-    display: flex;
-    justify-content: space-between;
+    border-bottom: 1px solid var(--md-sys-color-outline);
+    padding: 0 24px;
+    height: 72px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
     align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 24px;
     position: sticky;
     top: 0;
     z-index: 100;
 }
 
-.header-title {
+.header-brand {
     display: flex;
     align-items: center;
     gap: 12px;
+    text-decoration: none;
+    color: var(--md-sys-color-primary);
 }
 
-.search-bar-container {
+.logo-icon {
+    font-size: 32px;
+}
+
+.logo-text {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--md-sys-color-on-surface);
+}
+
+/* --- CENTER: Search --- */
+.header-search-area {
     display: flex;
-    gap: 12px;
+    justify-content: center;
     align-items: center;
+    gap: 16px;
+    width: 100%;
 }
 
-.search-input-group {
-    position: relative;
-}
-
-.search-input-group input {
-    width: 200px;
-}
-
-/* History Dropdown */
-.custom-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin-top: 8px;
+.search-pill {
+    display: flex;
+    align-items: center;
     background-color: var(--md-sys-color-surface);
     border: 1px solid var(--md-sys-color-outline);
-    border-radius: 12px;
+    border-radius: 50px;
+    padding: 0 0 0 16px;
+    width: 100%;
+    max-width: 400px;
+    height: 42px;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-pill:focus-within {
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.2);
+}
+
+/* User Icon Styling */
+.search-icon-lead {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 20px;
+    margin-right: 8px;
+}
+
+.search-pill input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--md-sys-color-on-surface);
+    font-size: 15px;
+    flex-grow: 1;
+    height: 100%;
+}
+
+.btn-search-submit {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--md-sys-color-on-surface-variant);
+    border: none;
+    border-left: 1px solid var(--md-sys-color-outline);
+    border-radius: 0 50px 50px 0;
+    width: 50px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-search-submit:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--md-sys-color-primary);
+}
+
+#refresh-btn {
+    color: var(--md-sys-color-on-surface-variant);
+    background: none;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#refresh-btn:hover {
+    background-color: var(--md-sys-color-surface-variant);
+    color: var(--md-sys-color-on-surface);
+    transform: rotate(90deg);
+}
+
+.custom-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background-color: var(--md-sys-color-surface);
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 16px;
     list-style: none;
-    max-height: 200px;
+    max-height: 300px;
     overflow-y: auto;
     display: none;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
     z-index: 2000;
 }
 
@@ -56,120 +134,98 @@
 }
 
 .custom-dropdown li {
-    padding: 10px 16px;
+    padding: 12px 20px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     color: var(--md-sys-color-on-surface);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-dropdown li:last-child {
+    border-bottom: none;
 }
 
 .custom-dropdown li:hover {
     background-color: var(--md-sys-color-surface-variant);
 }
 
-/* Settings Dropdown */
-.dropdown-container {
-    position: relative;
+.header-actions {
     display: flex;
     align-items: center;
+    gap: 16px;
+    justify-content: flex-end;
 }
 
-.dropdown-menu {
-    position: absolute;
-    top: calc(100% + 14px);
-    right: 0;
-    width: 320px;
-    background-color: var(--md-sys-color-surface);
-    border: 1px solid var(--md-sys-color-outline);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-    display: none;
-    flex-direction: column;
-    gap: 20px;
-    z-index: 3000;
-}
-
-.dropdown-menu.show {
+.nav-item {
     display: flex;
-}
-
-.dropdown-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--md-sys-color-outline);
+    gap: 8px;
+    text-decoration: none;
+    color: var(--md-sys-color-on-surface-variant);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    transition: 0.2s;
 }
 
-.dropdown-section {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Token Input */
-.token-input-wrapper {
-    display: flex;
+.nav-item:hover {
     background-color: var(--md-sys-color-surface-variant);
-    border: 1px solid transparent;
-    border-radius: 8px;
-    padding: 4px 8px;
-    align-items: center;
-}
-
-.token-input-wrapper:focus-within {
-    border-color: var(--md-sys-color-primary);
-    background-color: var(--md-sys-color-surface);
-}
-
-.token-input-wrapper input {
-    padding: 10px;
-    width: 100%;
-    border: none;
-    background: none;
     color: var(--md-sys-color-on-surface);
-    outline: none;
 }
 
-/* --- MOBILE RESPONSIVENESS --- */
+.nav-item.active {
+    color: var(--md-sys-color-primary);
+    background-color: rgba(var(--md-sys-color-primary-rgb), 0.15);
+}
+
+.divider-vertical {
+    width: 1px;
+    height: 24px;
+    background-color: var(--md-sys-color-outline);
+}
+
+.settings-btn {
+    width: 40px;
+    height: 40px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-btn.active {
+    color: var(--md-sys-color-primary);
+}
+
 @media (max-width: 768px) {
     .header {
-        flex-direction: column;
-        align-items: stretch;
+        height: auto;
+        padding: 16px;
+        grid-template-columns: 1fr auto;
+        grid-template-areas: "logo actions" "search search";
         gap: 16px;
-        padding: 16px 20px;
-        position: relative;
     }
 
-    .header-title {
-        justify-content: center;
-        margin-bottom: 8px;
+    .header-brand {
+        grid-area: logo;
     }
 
-    .search-bar-container {
-        flex-direction: column;
-        width: 100%;
+    .header-actions {
+        grid-area: actions;
     }
 
-    .search-input-group,
-    .search-input-group input {
-        width: 100%;
+    .header-search-area {
+        grid-area: search;
     }
 
-    .search-bar-container .btn {
-        width: 100%;
+    .logo-text {
+        display: none;
     }
 
-    .header-controls {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-    }
-
-    .dropdown-menu {
-        right: -10px;
-        width: 300px;
+    .nav-item span:last-child {
+        display: none;
     }
 }

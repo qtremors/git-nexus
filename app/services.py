@@ -1,17 +1,15 @@
 from datetime import datetime
+from urllib.parse import urlparse
 
 import requests
-from flask import current_app, request
+from flask import request
 
 from app.models import AppConfig, CacheEntry, db
 
 
-# --- Helper: Get Token (Priority: Request > DB) ---
 def get_effective_token(request_token):
     if request_token and request_token.strip():
         return request_token.strip()
-
-    # Fallback to DB
     config = AppConfig.query.get("github_token")
     return config.value if config else None
 
@@ -22,28 +20,20 @@ def get_github_headers(token=None):
         "X-GitHub-Api-Version": "2022-11-28",
     }
     effective_token = get_effective_token(token)
-
     if effective_token:
         headers["Authorization"] = f"Bearer {effective_token}"
     return headers
 
 
 def fetch_and_cache(username, endpoint_type, url, token=None, params=None):
-    # 1. CHECK CACHE FIRST
     cached = CacheEntry.query.filter_by(
         username=username, endpoint_type=endpoint_type
     ).first()
     force_refresh = request.args.get("refresh") == "true"
 
-    # INFINITE CACHE LOGIC:
     if cached and not force_refresh:
-        print(
-            f"[{endpoint_type}] Serving from DB Cache for {username} (Infinite Cache)"
-        )
         return cached.data
 
-    # 2. ONLY IF NO CACHE OR FORCED REFRESH, CALL API
-    print(f"[{endpoint_type}] Fetching from GitHub API (Refresh={force_refresh})")
     headers = get_github_headers(token)
 
     try:
@@ -58,10 +48,7 @@ def fetch_and_cache(username, endpoint_type, url, token=None, params=None):
                 resp = requests.get(url, headers=headers, params=current_params)
                 if resp.status_code != 200:
                     if page == 1:
-                        return {
-                            "error": resp.status_code,
-                            "message": resp.json().get("message", "API Error"),
-                        }
+                        return {"error": resp.status_code}
                     break
 
                 data = resp.json()
@@ -75,13 +62,9 @@ def fetch_and_cache(username, endpoint_type, url, token=None, params=None):
         else:
             resp = requests.get(url, headers=headers, params=params)
             if resp.status_code != 200:
-                return {
-                    "error": resp.status_code,
-                    "message": resp.json().get("message", "API Error"),
-                }
+                return {"error": resp.status_code}
             final_data = resp.json()
 
-        # 3. SAVE TO DB (Update or Create)
         if not cached:
             cached = CacheEntry(username=username, endpoint_type=endpoint_type)
             db.session.add(cached)
@@ -89,10 +72,60 @@ def fetch_and_cache(username, endpoint_type, url, token=None, params=None):
         cached.data = final_data
         cached.last_updated = datetime.utcnow()
         db.session.commit()
-
         return final_data
 
-    except requests.RequestException as e:
-        return {"error": 500, "message": str(e)}
     except Exception as e:
-        return {"error": 500, "message": f"Server Error: {str(e)}"}
+        return {"error": 500, "message": str(e)}
+
+
+# --- HELPERS ---
+
+
+def parse_github_url(url):
+    """Extracts owner and repo from https://github.com/owner/repo"""
+    try:
+        parsed = urlparse(url)
+        path_parts = parsed.path.strip("/").split("/")
+        if len(path_parts) >= 2:
+            return path_parts[0], path_parts[1]
+    except:
+        pass
+    return None, None
+
+
+def fetch_repo_metadata(owner, repo, token=None):
+    url = f"https://api.github.com/repos/{owner}/{repo}"
+    headers = get_github_headers(token)
+    try:
+        resp = requests.get(url, headers=headers)
+        if resp.status_code == 200:
+            return resp.json()
+    except:
+        pass
+    return None
+
+
+# NEW: Fetch List of Releases (default 3)
+def fetch_repo_releases(owner, repo, token=None, limit=3):
+    url = f"https://api.github.com/repos/{owner}/{repo}/releases?per_page={limit}"
+    headers = get_github_headers(token)
+    try:
+        resp = requests.get(url, headers=headers)
+        if resp.status_code == 200:
+            return resp.json()
+        return []
+    except:
+        return []
+
+
+# Fetch Just the Latest (for quick version checking)
+def fetch_latest_release(owner, repo, token=None):
+    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    headers = get_github_headers(token)
+    try:
+        resp = requests.get(url, headers=headers)
+        if resp.status_code == 200:
+            return resp.json()
+        return None
+    except:
+        return None

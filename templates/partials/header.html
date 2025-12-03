@@ -1,61 +1,38 @@
 <header class="header">
-    <div class="header-title">
-        <span class="material-symbols-outlined">hub</span>
-        <h1>GitNexus</h1>
-    </div>
+    <a href="{{ url_for('main.index') }}" class="header-brand">
+        <span class="material-symbols-outlined logo-icon">hub</span>
+        <span class="logo-text">GitNexus</span>
+    </a>
 
-    <div class="search-bar-container">
-        <div class="input-group search-input-group">
-            <span class="material-symbols-outlined">person</span>
-            <input type="text" id="username-input" autocomplete="off" value="qtremors" placeholder="GitHub Username">
+    <div class="header-search-area">
+        {% if page == 'discover' %}
+        <div class="search-pill">
+            <span class="material-symbols-outlined search-icon-lead">person</span>
+            <input type="text" id="username-input" autocomplete="off" value="qtremors" placeholder="GitHub username...">
+
+            <button id="fetch-btn" class="btn-search-submit" title="Search">
+                <span class="material-symbols-outlined">arrow_forward</span>
+            </button>
+
             <ul id="history-dropdown" class="custom-dropdown"></ul>
         </div>
 
-        <button id="fetch-btn" class="btn btn-filled">
-            <span class="material-symbols-outlined">search</span>
-            <span>Fetch Repos</span>
-        </button>
-        <button id="refresh-btn" class="btn btn-outlined">
+        <button id="refresh-btn" class="btn-icon-small" title="Force Refresh Data">
             <span class="material-symbols-outlined">refresh</span>
-            <span>Refresh</span>
         </button>
+        {% endif %}
     </div>
 
-    <div class="header-controls">
-        <div class="dropdown-container">
-            <button id="settings-btn" class="btn btn-icon" title="Settings">
-                <span class="material-symbols-outlined">settings</span>
-            </button>
+    <div class="header-actions">
+        <a href="{{ url_for('main.watchlist') }}" class="nav-item {% if page == 'watchlist' %}active{% endif %}">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Watchlist</span>
+        </a>
 
-            <div id="settings-dropdown" class="dropdown-menu">
-                <div class="dropdown-header">
-                    <h3>Settings</h3>
-                    <button id="close-settings-btn" class="btn-icon-small"><span class="material-symbols-outlined">close</span></button>
-                </div>
+        <div class="divider-vertical"></div>
 
-                <div class="dropdown-section">
-                    <label class="dropdown-label"><span class="material-symbols-outlined">palette</span> Theme</label>
-                    <div class="select-wrapper full-width settings-dropdown">
-                        <select id="theme-select" class="styled-select">
-                            <option value="default">Dark Contrast</option>
-                            <option value="regular">Dark Dimmed</option>
-                            <option value="contrast">Dark Blue</option>
-                        </select>
-                        <span class="material-symbols-outlined arrow">arrow_drop_down</span>
-                    </div>
-                </div>
-
-                <div class="dropdown-section">
-                    <label class="dropdown-label"><span class="material-symbols-outlined">key</span> GitHub Token</label>
-                    <div class="token-input-wrapper">
-                        <input type="password" id="token-input" placeholder="Paste Token Here">
-                        <button id="toggle-token-btn" class="btn-icon-small" title="Show/Hide">
-                            <span class="material-symbols-outlined">visibility_off</span>
-                        </button>
-                    </div>
-                    <button id="save-token-btn" class="btn btn-outlined full-width-btn">Save to DB</button>
-                </div>
-            </div>
-        </div>
+        <a href="{{ url_for('main.settings') }}" class="btn-icon settings-btn {% if page == 'settings' %}active{% endif %}" title="Settings">
+            <span class="material-symbols-outlined">settings</span>
+        </a>
     </div>
 </header>

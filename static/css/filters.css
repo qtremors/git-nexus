@@ -17,14 +17,7 @@
     align-items: center;
 }
 
-.pill-input {
-    background-color: var(--md-sys-color-surface-variant);
-    border: 1px solid var(--md-sys-color-outline);
-    border-radius: 50px;
-    padding: 8px 24px;
-    height: 48px;
-}
-
+/* Specific filter group styles */
 .commit-filter-group input {
     width: 60px;
     text-align: center;
@@ -39,47 +32,6 @@
     color: var(--md-sys-color-on-surface-variant);
 }
 
-/* Dropdowns */
-.select-wrapper {
-    position: relative;
-    height: 48px;
-}
-
-.select-wrapper.full-width {
-    width: 100%;
-    height: auto;
-}
-
-.styled-select {
-    -webkit-appearance: none;
-    appearance: none;
-    background-color: var(--md-sys-color-surface-variant);
-    color: var(--md-sys-color-on-surface);
-    border: 1px solid var(--md-sys-color-outline);
-    border-radius: 50px;
-    padding: 0 44px 0 24px;
-    font-size: 14px;
-    outline: none;
-    cursor: pointer;
-    height: 100%;
-    min-width: 170px;
-}
-
-.settings-dropdown .styled-select {
-    border-radius: 8px;
-    padding: 10px 12px;
-    width: 100%;
-    height: auto;
-}
-
-.select-wrapper .arrow {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    pointer-events: none;
-}
-
 /* --- MOBILE RESPONSIVENESS --- */
 @media (max-width: 768px) {
     .filter-sort-controls {
@@ -92,12 +44,7 @@
         align-items: stretch;
     }
 
-    .select-wrapper,
-    .styled-select {
-        width: 100%;
-        min-width: 0;
-    }
-
+    .filter-group,
     .pill-input {
         width: 100%;
     }
