@@ -366,6 +366,54 @@ impl Store {
         tx.commit()?;
         Ok(count)
     }
+
+    pub fn repositories(&self) -> Result<Vec<LocalRepo>> {
+        let mut statement = self
+            .db
+            .prepare("SELECT id,name,path FROM repositories ORDER BY name")?;
+        Ok(statement
+            .query_map([], |r| {
+                Ok(LocalRepo {
+                    id: r.get(0)?,
+                    name: r.get(1)?,
+                    path: r.get(2)?,
+                })
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
+    pub fn add_repository(&self, path: &Path) -> Result<LocalRepo> {
+        let root = crate::git::repository_root(path)?;
+        let path = root.to_string_lossy().into_owned();
+        let name = root
+            .file_name()
+            .context("Invalid repository root")?
+            .to_string_lossy()
+            .into_owned();
+        self.db.execute(
+            "INSERT OR IGNORE INTO repositories(name,path) VALUES(?,?)",
+            params![name, path],
+        )?;
+        Ok(self.db.query_row(
+            "SELECT id,name,path FROM repositories WHERE path=?",
+            [path],
+            |r| {
+                Ok(LocalRepo {
+                    id: r.get(0)?,
+                    name: r.get(1)?,
+                    path: r.get(2)?,
+                })
+            },
+        )?)
+    }
+
+    pub fn remove_repository(&mut self, id: i64) -> Result<()> {
+        let tx = self.db.transaction()?;
+        tx.execute("DELETE FROM env_vars WHERE repository_id=?", [id])?;
+        tx.execute("DELETE FROM repositories WHERE id=?", [id])?;
+        tx.commit()?;
+        Ok(())
+    }
 }
 
 fn write_private_new(path: &Path, content: &[u8]) -> Result<()> {

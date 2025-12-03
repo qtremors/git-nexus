@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.0.5
+> **Version:** 0.0.6
 > **Last Updated:** 2025-12-03
 
 ---
+
+## [0.0.6] - 2025-12-03
+
+- Added local repository registration, remembered selection and registration removal that preserves checkouts.
 
 ## [0.0.5] - 2025-12-03
 

@@ -13,7 +13,7 @@ fn main() -> Result<()> {
         }
     }
     let store = git_nexus_core::Store::open(data.unwrap_or(git_nexus_core::Store::default_directory()?))?;
-    let _ = repository;
+    if let Some(path) = repository { store.add_repository(&path)?; }
     
     println!("GitNexus {} storage check passed", env!("CARGO_PKG_VERSION"));
     Ok(())
