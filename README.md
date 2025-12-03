@@ -1,36 +1,48 @@
-# 🧭 GitNexus (v2.0.0)
+# 🧭 GitNexus
 
-**GitNexus** is a self-hosted **GitHub Asset Manager & Watchtower**. It has evolved from a simple repository viewer into a powerful tool that allows you to track your favorite repositories, detect new software releases, and download assets directly to your local machine without browser restrictions.
+**GitNexus** is a comprehensive, self-hosted dashboard designed to bridge the gap between GitHub's vast repository network and your local machine. It functions as a hybrid between a **User Discovery Engine**, a **Repository Analyzer**, and a **Personal Asset Watchtower**.
 
-Beyond just viewing repositories, GitNexus now acts as a personal "App Store" dashboard for your GitHub tools.
+While GitHub is built for collaboration and coding, GitNexus is built for **consumption and management**. It allows you to explore user profiles deeply, analyze their repository statistics without navigating away, and most importantly, treat GitHub repositories like a personal "App Store." You can track specific tools for updates, visualize version history, and download assets directly to your server or local drive, bypassing standard browser limitations.
 
----
+Whether you are a data hoarder, a developer tracking dependencies, or just someone who loves open-source tools, GitNexus provides a centralized, private interface to manage the software you care about.
 
-## ✨ Key Features
-
-### 🔭 Asset Watchlist (v2.0)
-* **Track Repositories:** Add any public GitHub repository to your personal watchlist using its URL.
-* **Update Detection:** Automatically compares the latest release tag on GitHub with your locally tracked version.
-* **Visual Indicators:** Cards glow green 🟢 when an update is available.
-* **Release History:** View the latest 3 releases and their assets in an accordion view without leaving the dashboard.
-
-### 📥 Power Downloader
-* **Server-Side Downloading:** Assets are downloaded by the Python backend, bypassing browser pop-up blockers and speed throttling.
-* **Custom Storage:** Configure a specific folder (e.g., `D:/MyTools`) where downloads are saved.
-* **Auto-Organization:** Files are automatically sorted into subfolders: `/Downloads/RepoName/FileName`.
-
-### 🔍 Discovery & Analysis
-* **Deep User Search:** Fetch and filter all public repositories for any user.
-* **Advanced Filtering:** Filter by Language, Topic, Star count, and Commit activity.
-* **Markdown Viewer:** Render `README.md` files instantly in a modal.
-* **Analytics:** View visualizations of repository data and commit history.
-
-### ⚙️ Advanced Configuration
-* **Data Portability:** Import and Export your watchlist as JSON to sync between machines.
-* **Theme Engine:** Choose between **Dark Contrast**, **Dimmed**, and **Deep Blue** themes.
-* **Token Management:** Securely store your GitHub Personal Access Token to increase API rate limits (5,000 req/hr).
+> ---
+> **🌐 Live Demo (Legacy Prototype)**
+>
+> The current version of GitNexus utilizes a **Python Flask backend** to handle server-side downloads, maintain a local database, and bypass browser API restrictions. Because of these advanced capabilities, it is designed to be self-hosted locally.
+>
+> You can view the **[Legacy Static Frontend (v0.1)](https://qtremors.github.io/repo-nav/)** to see the original UI concept.
+> *Note: The legacy demo **does not** include the Asset Watchtower, Downloader, or Theme Engine.*
 
 ---
+
+## ✨ Features
+
+### 🔍 Deep Discovery & Analysis
+* **User Profiler:** Instantly fetch any public GitHub user profile to view bio, follower stats, and a visual contribution graph.
+* **Repository Explorer:** View a user's entire repository catalog in a sortable, filterable grid.
+* **Instant Insights:** Render `README.md` files, view commit history, and check language statistics without opening new tabs.
+* **Advanced Filtering:** Filter repositories by **Topic**, **Language**, **Star Count**, or **Commit Activity**.
+* **Data Visualization:** View analytics charts breaking down language usage and repository sizes.
+
+### 🔭 The Asset Watchtower
+* **Repository Tracking:** Build a personalized "Watchlist" of repositories you want to monitor (e.g., tools, libraries, apps).
+* **Smart Update Detection:** The system automatically compares your local history with the latest GitHub tags.
+* **Visual Notifications:** Cards glow **Green** 🟢 and display a "Update Available" badge when a new version is released.
+* **Release History:** Expand any card to view the latest 3 releases, complete with changelogs and publication dates.
+
+### 📥 High-Performance Downloader
+* **Server-Side Pipeline:** Downloads are handled by the Python backend, not your browser. This bypasses pop-up blockers, speed throttling, and multiple-file restrictions.
+* **Automated Organization:** Assets are saved to your configured directory in a structured format: `/Downloads/{RepoName}/{FileName}`.
+* **Bulk Actions:** Select multiple repositories and download their source code or binary assets in a single click.
+
+### ⚙️ System & Customization
+* **Theme Engine:** Includes three distinct visual modes:
+    * **Dark Contrast:** Deep blues and high contrast (Default).
+    * **Dimmed:** Matches GitHub's native "Dimmed" dark mode.
+    * **Deep Blue:** An AMOLED-friendly pitch-black theme.
+* **Data Portability:** Export your entire watchlist to JSON for backup or import it to another GitNexus instance.
+* **Secure Mode:** API Tokens are visually masked in the UI to prevent shoulder-surfing.
 
 ## 🛠️ Tech Stack
 
@@ -38,8 +50,6 @@ Beyond just viewing repositories, GitNexus now acts as a personal "App Store" da
 * **Frontend:** Vanilla JavaScript (ES6 Modules), CSS3 Variables, Glassmorphism UI.
 * **API:** GitHub REST API.
 * **Libraries:** `marked.js` (Markdown parsing).
-
----
 
 ## 🚀 Installation & Setup
 
@@ -77,44 +87,100 @@ Open your browser and navigate to:
 
 ## 📂 Project Structure
 
-Plaintext
-
 ```
-gitnexus/
-├── instance/
-│   └── project.db       # SQLite Database (Stores Watchlist & Cache)
-├── static/
-│   ├── css/             # Modular CSS
-│   │   ├── header.css
-│   │   ├── watchlist.css
-│   │   ├── settings.css
-│   │   └── ...
-│   ├── js/              # ES6 Modules
-│   │   ├── main.js      # Discover Page Logic
-│   │   ├── watchlist.js # Dashboard Logic
-│   │   ├── api.js       # Centralized API Handler
-│   │   └── ...
-├── templates/
-│   ├── partials/        # Reusable HTML Components
-│   ├── index.html       # Discover Page
-│   ├── watchlist.html   # Watchlist Dashboard
-│   └── settings.html    # Configuration Page
-├── app.py               # Flask Entry Point
-├── api.py               # API Routes & Logic
-├── models.py            # DB Models (TrackedRepo, CacheEntry)
-└── services.py          # GitHub API Interaction Helpers
+## 📂 Project Structure
+
+git-nexus/
+├── app/                             # Main application package
+│   ├── routes/                      # Flask Blueprints (Route controllers)
+│   │   ├── api.py                   # JSON API endpoints (Data, Logic, & Downloads)
+│   │   └── main.py                  # Frontend routes (Serves HTML pages)
+│   ├── __init__.py                  # App factory, DB initialization, & Blueprint registration
+│   ├── models.py                    # SQLAlchemy Database Models (TrackedRepo, CacheEntry)
+│   └── services.py                  # Business Logic (GitHub API wrapper, Caching strategies)
+├── static/                          # Frontend static assets
+│   ├── assets/                      # Images and Icons
+│   │   └── octocat.svg              # Favicon/Logo asset
+│   ├── css/                         # Modular CSS Architecture
+│   │   ├── filters.css              # Styles for search & filter inputs
+│   │   ├── graph.css                # Styles for the contribution graph container
+│   │   ├── header.css               # Glassmorphism navigation bar styles
+│   │   ├── modals.css               # Styles for pop-ups (README, Commits, Downloads)
+│   │   ├── profile.css              # User profile & bio section styles
+│   │   ├── repos.css                # Repository grid & card styles
+│   │   ├── settings.css             # Layout for the Settings page
+│   │   ├── style.css                # Global resets, typography, & shared components
+│   │   ├── theme.css                # CSS Variables for Dark/Dimmed/Blue themes
+│   │   └── watchlist.css            # Styles specific to the Watchtower Dashboard
+│   └── js/                          # ES6 JavaScript Modules
+│       ├── api.js                   # Centralized API fetch wrapper & error handling
+│       ├── main.js                  # Logic for Discovery Page (Search, Filtering)
+│       ├── settings.js              # Logic for Settings (Theme switching, Token saving)
+│       ├── ui.js                    # DOM Rendering functions (Cards, Lists, Stats)
+│       ├── utils.js                 # Shared helpers (Toast, Clipboard, Theme apply)
+│       └── watchlist.js             # Logic for Watchlist (Update checks, Accordions)
+├── templates/                       # Jinja2 HTML Templates
+│   ├── partials/                    # Reusable HTML Components
+│   │   ├── filters.html             # Filter controls for generic lists
+│   │   ├── filters_repos.html       # Specific filters for the Repo Discovery grid
+│   │   ├── graph.html               # Contribution graph container
+│   │   ├── header.html              # Main navigation bar partial
+│   │   ├── modals.html              # Hidden modal structures (popups)
+│   │   └── profile.html             # User profile summary section
+│   ├── index.html                   # Main Landing/Discovery Page
+│   ├── settings.html                # Configuration & Settings Page
+│   └── watchlist.html               # Watchlist Dashboard Page
+├── .git/                            # Git Version Control metadata
+├── .gitignore                       # Specifies intentionally untracked files
+├── app.py                           # Application Entry Point (Run this to start)
+├── CHANGELOG.md                     # Version history and release notes
+├── config.py                        # Flask configuration settings (Secret keys, Paths)
+├── pyproject.toml                   # Python dependencies & build configuration (uv/pip)
+└── README.md                        # Project documentation
 ```
 
----
 
 ## ⚙️ Configuration Guide
 
-1. **Set Download Path:** Go to **Settings > Local Storage** and enter an absolute path (e.g., `C:/Users/You/Downloads/GitNexus`).
+### 1. Set Local Storage Path
+
+Go to **Settings > Local Storage**. Enter the absolute path where you want files to be saved (e.g., `D:/Software/GitNexus` or `/home/user/downloads`). The system will automatically create subfolders for every repository you download.
+
+### 2. Add GitHub Access Token (Recommended)
+
+To increase your API rate limit (from 60 to 5,000 requests/hour) and access private repositories, you should add a **Fine-grained Personal Access Token**.
+
+**How to obtain a Granular Token:**
+
+1. Log in to GitHub and go to **Settings > Developer Settings**.
     
-2. **Add Token:** Go to **Settings > GitHub Access** and paste a classic Personal Access Token (read-only is fine) to avoid rate limits.
+2. Select **Personal access tokens > Fine-grained tokens**.
     
-3. **Import Data:** Use the **Import JSON** feature to restore a previously exported watchlist.
+3. Click **Generate new token**.
     
+4. **Repository Access:** Choose "All repositories" (easiest) or "Only select repositories".
+    
+5. **Permissions:** Under "Repository permissions", ensure you grant **Read-only** access to:
+    
+    - `Contents` (to read code and READMEs)
+        
+    - `Metadata` (to read stars, forks, and release info)
+        
+6. Generate the token and copy the string (starts with `github_pat_...`).
+    
+
+**How to add it to GitNexus:**
+
+1. Navigate to **Settings > GitHub Access**.
+    
+2. Paste your token into the input field.
+    
+3. Click **Save Token**.
+    
+
+### 3. Import/Export Data
+
+If you are moving to a new machine, use the **Export JSON** button in Settings to download your watchlist configuration. You can restore it later using **Import JSON**.
 
 ---
 

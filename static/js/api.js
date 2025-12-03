@@ -33,9 +33,11 @@ export async function fetchUser(username, token, refresh = false) {
   return await response.json();
 }
 
-export async function fetchCommitCount(owner, repoName, token) {
+export async function fetchCommitCount(owner, repoName, token, refresh = false) {
   try {
-    const response = await fetch('/api/commit-count', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ owner, repo: repoName, token }) });
+    let url = '/api/commit-count';
+    if (refresh) url += '?refresh=true';
+    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ owner, repo: repoName, token }) });
     if (!response.ok) return 0;
     const data = await response.json();
     return data.count !== undefined ? data.count : 0;

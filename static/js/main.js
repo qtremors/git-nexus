@@ -164,7 +164,7 @@ async function handleFetchRepos(forceRefresh) {
     runFiltersAndRender();
     loadHistory();
 
-    fetchAndRenderCommitCounts('');
+    fetchAndRenderCommitCounts('', forceRefresh);
 
   } catch (error) {
     console.error(error);
@@ -214,8 +214,8 @@ function runFiltersAndRender() {
   UI.renderRepoList(filtered);
 }
 
-async function fetchAndRenderCommitCounts(token) {
-  const countPromises = allRepos.map(repo => API.fetchCommitCount(repo.owner.login, repo.name, token));
+async function fetchAndRenderCommitCounts(token, refresh = false) {
+  const countPromises = allRepos.map(repo => API.fetchCommitCount(repo.owner.login, repo.name, token, refresh));
   const results = await Promise.allSettled(countPromises);
   let needRender = false;
   let totalCommits = 0;

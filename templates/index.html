@@ -20,6 +20,43 @@
 </head>
 <body class="theme-default">
 
+    <noscript>
+        <div style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--md-sys-color-background);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+        ">
+            <span class="material-symbols-outlined" style="font-size: 64px; color: var(--md-sys-color-error); margin-bottom: 24px;">javascript</span>
+            
+            <h2 style="color: var(--md-sys-color-on-background); margin-bottom: 16px; font-size: 28px;">JavaScript Required</h2>
+            
+            <p style="color: var(--md-sys-color-on-surface-variant); max-width: 500px; font-size: 16px; line-height: 1.6;">
+                GitNexus is a single-page application that relies heavily on JavaScript. 
+                Without it, the following core features will not work:
+            </p>
+
+            <ul style="color: var(--md-sys-color-on-surface-variant); text-align: left; margin: 24px 0; font-size: 15px; list-style: none;">
+                <li style="margin-bottom: 8px;">❌ <strong>API Communication:</strong> Cannot fetch user profiles or repository data.</li>
+                <li style="margin-bottom: 8px;">❌ <strong>UI Rendering:</strong> The dashboard and themes cannot be generated.</li>
+                <li>❌ <strong>Asset Downloader:</strong> The secure download bridge will not function.</li>
+            </ul>
+
+            <p style="color: var(--md-sys-color-primary); font-weight: 500;">
+                Please enable JavaScript in your browser settings to continue.
+            </p>
+        </div>
+    </noscript>
+
     {% include 'partials/header.html' %}
 
     <main class="main-content">
