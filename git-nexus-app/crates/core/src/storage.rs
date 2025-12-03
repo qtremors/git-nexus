@@ -243,6 +243,129 @@ impl Store {
             .query_map([], |r| r.get(0))?
             .collect::<rusqlite::Result<Vec<_>>>()?)
     }
+
+    pub fn watchlist(&self) -> Result<Vec<WatchedRepo>> {
+        let mut statement=self.db.prepare("SELECT id,owner,repo_name,current_version,latest_version,description,html_url,sort_order FROM tracked_repos ORDER BY sort_order,id")?;
+        Ok(statement
+            .query_map([], |r| {
+                Ok(WatchedRepo {
+                    id: r.get(0)?,
+                    owner: r.get(1)?,
+                    name: r.get(2)?,
+                    current_version: r.get(3)?,
+                    latest_version: r.get(4)?,
+                    description: r.get(5)?,
+                    html_url: r.get(6)?,
+                    sort_order: r.get(7)?,
+                })
+            })?
+            .collect::<rusqlite::Result<Vec<_>>>()?)
+    }
+
+    pub fn watch(
+        &self,
+        owner: &str,
+        name: &str,
+        repo: &GitHubRepo,
+        latest: Option<&str>,
+    ) -> Result<()> {
+        crate::github::validate_identity(owner, name)?;
+        self.db.execute("INSERT INTO tracked_repos(owner,repo_name,current_version,latest_version,description,html_url,sort_order) VALUES(?,?,?,?,?,?,(SELECT COALESCE(MAX(sort_order),-1)+1 FROM tracked_repos))", params![owner,name,latest.unwrap_or("Unknown"),latest,repo.description,repo.html_url])
+            .context("Repository is already tracked or could not be saved")?;
+        Ok(())
+    }
+
+    pub fn unwatch(&self, id: i64) -> Result<()> {
+        self.db
+            .execute("DELETE FROM tracked_repos WHERE id=?", [id])?;
+        Ok(())
+    }
+
+    pub fn update_version(&self, id: i64, latest: Option<&str>) -> Result<()> {
+        self.db.execute(
+            "UPDATE tracked_repos SET latest_version=? WHERE id=?",
+            params![latest, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn mark_current(&self, id: i64) -> Result<()> {
+        self.db.execute("UPDATE tracked_repos SET current_version=COALESCE(latest_version,current_version) WHERE id=?", [id])?;
+        Ok(())
+    }
+
+    pub fn set_current_version(&self, id: i64, version: &str) -> Result<()> {
+        self.db.execute(
+            "UPDATE tracked_repos SET current_version=? WHERE id=?",
+            params![version, id],
+        )?;
+        Ok(())
+    }
+
+    pub fn reorder(&mut self, ids: &[i64]) -> Result<()> {
+        let tx = self.db.transaction()?;
+        for (order, id) in ids.iter().enumerate() {
+            tx.execute(
+                "UPDATE tracked_repos SET sort_order=? WHERE id=?",
+                params![order as i64, id],
+            )?;
+        }
+        tx.commit()?;
+        Ok(())
+    }
+
+    pub fn export_watchlist(&self, path: &Path) -> Result<()> {
+        fs::write(path, serde_json::to_vec_pretty(&self.watchlist()?)?)?;
+        Ok(())
+    }
+
+    pub fn export_watchlist_config(&self, path: &Path) -> Result<()> {
+        ensure!(
+            path.extension()
+                .is_some_and(|extension| extension.eq_ignore_ascii_case("json")),
+            "Choose a .json configuration filename"
+        );
+        let entries: Vec<_> = self
+            .watchlist()?
+            .into_iter()
+            .map(|repo| serde_json::json!({"owner":repo.owner,"name":repo.name}))
+            .collect();
+        fs::write(path, serde_json::to_vec_pretty(&entries)?)?;
+        Ok(())
+    }
+
+    pub fn import_watchlist(&mut self, path: &Path) -> Result<usize> {
+        self.import_watchlist_entries(&Self::read_watchlist_import(path)?)
+    }
+
+    pub fn read_watchlist_import(path: &Path) -> Result<Vec<WatchlistEntry>> {
+        let value: Value = serde_json::from_slice(&fs::read(path)?)?;
+        let rows = value
+            .as_array()
+            .or_else(|| value.get("repos").and_then(Value::as_array))
+            .context("Expected a watchlist array or an object with repos")?;
+        let entries: Vec<WatchlistEntry> = serde_json::from_value(Value::Array(rows.clone()))?;
+        for entry in &entries {
+            crate::github::validate_identity(&entry.owner, &entry.name)?;
+        }
+        Ok(entries)
+    }
+
+    pub fn import_watchlist_entries(&mut self, entries: &[WatchlistEntry]) -> Result<usize> {
+        let tx = self.db.transaction()?;
+        let next_order: i64 = tx.query_row(
+            "SELECT COALESCE(MAX(sort_order),-1)+1 FROM tracked_repos",
+            [],
+            |row| row.get(0),
+        )?;
+        let mut count = 0;
+        for (index, row) in entries.iter().enumerate() {
+            crate::github::validate_identity(&row.owner, &row.name)?;
+            count+=tx.execute("INSERT OR IGNORE INTO tracked_repos(owner,repo_name,current_version,latest_version,description,html_url,sort_order) VALUES(?,?,?,?,?,?,?)",params![row.owner,row.name,row.current_version.as_deref().unwrap_or("Unknown"),row.latest_version,row.description,row.html_url,row.sort_order.unwrap_or(next_order+index as i64)])?;
+        }
+        tx.commit()?;
+        Ok(count)
+    }
 }
 
 fn write_private_new(path: &Path, content: &[u8]) -> Result<()> {

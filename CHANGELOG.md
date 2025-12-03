@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.0.4
-> **Last Updated:** 2025-11-23
+> **Version:** 0.0.5
+> **Last Updated:** 2025-12-03
 
 ---
+
+## [0.0.5] - 2025-12-03
+
+- Added ordered release watchlists and validated JSON configuration import and export.
 
 ## [0.0.4] - 2025-11-23
 
