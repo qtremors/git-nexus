@@ -1,7 +1,3 @@
-/* =========================================
-             CSS Variables & Themes
-   ========================================= */
-
 :root {
     --border-radius-sm: 8px;
     --border-radius-md: 16px;
@@ -69,18 +65,17 @@ body.theme-contrast {
     --md-sys-color-error: #CF6679;
 }
 
-
-/* =========================================
-         Responsive Overrides (Mobile)
-   ========================================= */
-
+/* Mobile */
 @media (max-width: 480px) {
-    .main-content { padding: 16px; }
-    .header { padding: 16px; }
-    .controls-container, .settings-container { width: 100%; gap: 8px; }
-    .input-group { width: 100%; }
-    input[type="text"], input[type="password"] { width: 100%; }
-    .sort-group { width: 100%; }
-    .select-wrapper { flex-grow: 1; }
-    .styled-select { width: 100%; }
+    .main-content {
+        padding: 16px;
+    }
+
+    .header {
+        padding: 16px;
+    }
+
+    .input-group {
+        width: 100%;
+    }
 }

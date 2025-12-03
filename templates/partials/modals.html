@@ -1,0 +1,56 @@
+<div id="readme-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <button id="modal-close-btn" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+        <h3 class="modal-title">README.md</h3>
+        <div id="modal-loader" class="loader-container"><div class="loader"></div></div>
+        <div id="readme-content" class="readme-container"></div>
+    </div>
+</div>
+
+<div id="commits-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <button id="commits-modal-close-btn" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+        <h3 id="commits-modal-title" class="modal-title">Commit History</h3>
+        <div id="commits-modal-loader" class="loader-container"><div class="loader"></div></div>
+        <div id="commits-list-content" class="commits-list-container"></div>
+    </div>
+</div>
+
+<div id="download-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <button id="download-modal-close-btn" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+        <h3 id="download-modal-title" class="modal-title">Download Repositories</h3>
+        <div class="download-controls">
+            <label class="download-select-all-label">
+                <input type="checkbox" id="download-select-all">
+                <span>Select All</span>
+            </label>
+        </div>
+        <div id="download-list-content" class="download-list-container"></div>
+        <div class="modal-footer">
+                <button id="download-selected-btn" class="btn btn-filled">
+                <span class="material-symbols-outlined">download</span>
+                <span>Download Selected</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="stats-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <button id="stats-modal-close-btn" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+        <h3 class="modal-title">Repository Analytics</h3>
+
+        <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <h4 style="margin-bottom: 12px; border-bottom: 1px solid var(--md-sys-color-outline); padding-bottom: 8px;">Top Languages</h4>
+                <div id="stats-language-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+
+            <div style="flex: 1; min-width: 300px;">
+                <h4 style="margin-bottom: 12px; border-bottom: 1px solid var(--md-sys-color-outline); padding-bottom: 8px;">Summary</h4>
+                <div id="stats-summary" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
