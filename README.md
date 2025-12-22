@@ -11,7 +11,7 @@ Whether you are a data hoarder, a developer tracking dependencies, or just someo
 >
 > The current version of GitNexus utilizes a **Python Flask backend** to handle server-side downloads, maintain a local database, and bypass browser API restrictions. Because of these advanced capabilities, it is designed to be self-hosted locally.
 >
-> You can view the **[Legacy Static Frontend (v0.1)](https://qtremors.github.io/repo-nav/)** to see the original UI concept.
+> You can view the **[Legacy Static Frontend (v0.1)](https://qtremors.github.io/scrap/projects/demo-git-nexus/)** to see the original UI concept.
 > *Note: The legacy demo **does not** include the Asset Watchtower, Downloader, or Theme Engine.*
 
 ---
