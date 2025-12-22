@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.0.7
-> **Last Updated:** 2025-12-03
+> **Version:** 0.0.8
+> **Last Updated:** 2025-12-22
 
 ---
+
+## [0.0.8] - 2025-12-22
+
+- Added authenticated and cached GitHub profile, repository, README and quota services.
 
 ## [0.0.7] - 2025-12-03
 
