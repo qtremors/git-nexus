@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.0.8
-> **Last Updated:** 2025-12-22
+> **Version:** 0.0.9
+> **Last Updated:** 2026-01-12
 
 ---
+
+## [0.0.9] - 2026-01-12
+
+- Added paginated commit history, commit totals and contribution data with partial-failure reporting.
 
 ## [0.0.8] - 2025-12-22
 

@@ -177,8 +177,143 @@ impl GitHub {
         Ok(text)
     }
 
+    pub fn commits(
+        &mut self,
+        store: &Store,
+        owner: &str,
+        name: &str,
+        page: usize,
+    ) -> Result<Vec<Value>> {
+        self.commits_refreshed(store, owner, name, page, false)
+    }
+
+    pub fn commits_refreshed(
+        &mut self,
+        store: &Store,
+        owner: &str,
+        name: &str,
+        page: usize,
+        refresh: bool,
+    ) -> Result<Vec<Value>> {
+        validate_identity(owner, name)?;
+        ensure!(page > 0, "Invalid page");
+        self.cached(
+            store,
+            &format!("/repos/{owner}/{name}/commits?per_page={COMMIT_PAGE_SIZE}&page={page}"),
+            refresh,
+        )
+    }
+
     pub fn rate_limit(&mut self, store: &Store) -> Result<Value> {
         self.cached(store, "/rate_limit", true)
+    }
+
+    pub fn commit_count(
+        &mut self,
+        store: &Store,
+        owner: &str,
+        name: &str,
+        refresh: bool,
+    ) -> Result<u64> {
+        validate_identity(owner, name)?;
+        let key = format!("count:{owner}/{name}");
+        if !refresh
+            && let Some(value) = store.cache_get(&key)?
+            && let Some(count) = value.as_u64()
+        {
+            return Ok(count);
+        }
+        let token = store.token()?;
+        let response = match self.response(
+            &format!("/repos/{owner}/{name}/commits?per_page=1"),
+            token.as_deref(),
+            "application/vnd.github+json",
+        ) {
+            Ok(response) => response,
+            Err(error) if error.is::<EmptyRepository>() => {
+                store.cache_put(&key, &Value::from(0), 1800)?;
+                return Ok(0);
+            }
+            Err(error) => return Err(error),
+        };
+        let last = response
+            .headers()
+            .get("link")
+            .and_then(|v| v.to_str().ok())
+            .and_then(|links| links.split(',').find(|link| link.contains("rel=\"last\"")))
+            .and_then(|link| link.split('<').nth(1)?.split('>').next())
+            .and_then(|url| Url::parse(url).ok())
+            .and_then(|url| {
+                url.query_pairs()
+                    .find(|(key, _)| key == "page")
+                    .and_then(|(_, value)| value.parse::<u64>().ok())
+            });
+        let count = match last {
+            Some(count) => count,
+            None => response.json::<Vec<Value>>()?.len() as u64,
+        };
+        store.cache_put(&key, &Value::from(count), 1800)?;
+        Ok(count)
+    }
+
+    pub fn contributions(
+        &mut self,
+        store: &Store,
+        username: &str,
+        repos: &[GitHubRepo],
+        refresh: bool,
+    ) -> Result<(Vec<Contribution>, Vec<String>)> {
+        validate_identity(username, "placeholder")?;
+        let since = format!(
+            "{}T00:00:00Z",
+            (chrono::Utc::now() - chrono::Duration::days(365)).format("%Y-%m-%d")
+        );
+        let since =
+            percent_encoding::utf8_percent_encode(&since, percent_encoding::NON_ALPHANUMERIC)
+                .to_string();
+        let mut contributions = Vec::new();
+        let mut failures = Vec::new();
+        for repo in repos {
+            let result = (|| -> Result<Vec<Contribution>> {
+                validate_identity(username, &repo.name)?;
+                let mut result = Vec::new();
+                for page in 1..=100 {
+                    let commits: Vec<Value> = self.cached(
+                        store,
+                        &format!(
+                            "/repos/{username}/{}/commits?since={since}&per_page=100&page={page}",
+                            repo.name
+                        ),
+                        refresh,
+                    )?;
+                    let done = commits.len() < 100;
+                    for commit in commits {
+                        result.push(Contribution {
+                            sha: commit["sha"].as_str().unwrap_or_default().into(),
+                            date: commit["commit"]["author"]["date"]
+                                .as_str()
+                                .unwrap_or_default()
+                                .into(),
+                            message: commit["commit"]["message"]
+                                .as_str()
+                                .unwrap_or_default()
+                                .into(),
+                            repo: repo.name.clone(),
+                            url: commit["html_url"].as_str().unwrap_or_default().into(),
+                        });
+                    }
+                    if done {
+                        return Ok(result);
+                    }
+                }
+                bail!("Commit pagination exceeded supported limit")
+            })();
+            match result {
+                Ok(result) => contributions.extend(result),
+                Err(error) => failures.push(format!("{}: {error}", repo.name)),
+            }
+        }
+        Ok((contributions, failures))
     }
 }
 
