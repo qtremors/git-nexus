@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.0.9
-> **Last Updated:** 2026-01-12
+> **Version:** 0.1.0
+> **Last Updated:** 2026-01-20
 
 ---
+
+## [0.1.0] - 2026-01-20
+
+- Added release lookup, tracked-version updates and metadata resolution for watchlist imports.
 
 ## [0.0.9] - 2026-01-12
 

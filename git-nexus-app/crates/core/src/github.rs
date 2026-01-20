@@ -146,6 +146,21 @@ impl GitHub {
         self.cached(store, &format!("/repos/{owner}/{name}"), false)
     }
 
+    pub fn releases(
+        &mut self,
+        store: &Store,
+        owner: &str,
+        name: &str,
+        refresh: bool,
+    ) -> Result<Vec<Release>> {
+        validate_identity(owner, name)?;
+        self.cached(
+            store,
+            &format!("/repos/{owner}/{name}/releases?per_page=30"),
+            refresh,
+        )
+    }
+
     pub fn readme(&mut self, store: &Store, owner: &str, name: &str) -> Result<String> {
         self.readme_refreshed(store, owner, name, false)
     }
@@ -314,6 +329,77 @@ impl GitHub {
             }
         }
         Ok((contributions, failures))
+    }
+
+    pub fn add_watch(&mut self, store: &Store, identity: &str) -> Result<()> {
+        let (owner, name) = parse_identity(identity)?;
+        let repo = self.repository(store, &owner, &name)?;
+        let releases = self.releases(store, &owner, &name, false)?;
+        let latest = releases
+            .iter()
+            .find(|r| !r.prerelease && !r.draft)
+            .map(|r| r.tag_name.as_str());
+        store.watch(&owner, &name, &repo, latest)
+    }
+
+    pub fn prepare_watchlist_import(
+        &mut self,
+        store: &Store,
+        entries: &mut [WatchlistEntry],
+    ) -> Result<()> {
+        for entry in entries.iter() {
+            validate_identity(&entry.owner, &entry.name)?;
+        }
+        let existing = store.watchlist()?;
+        for entry in entries {
+            if existing.iter().any(|repo| {
+                repo.owner.eq_ignore_ascii_case(&entry.owner)
+                    && repo.name.eq_ignore_ascii_case(&entry.name)
+            }) {
+                continue;
+            }
+            let identity = format!("{}/{}", entry.owner, entry.name);
+            let metadata = self
+                .repository(store, &entry.owner, &entry.name)
+                .with_context(|| format!("Cannot import {identity}: repository lookup failed"))?;
+            let releases = self
+                .releases(store, &entry.owner, &entry.name, false)
+                .with_context(|| format!("Cannot import {identity}: release lookup failed"))?;
+            let latest = releases
+                .iter()
+                .find(|release| !release.prerelease && !release.draft)
+                .map(|release| release.tag_name.clone());
+            entry.description = metadata.description;
+            entry.html_url = Some(metadata.html_url);
+            entry.latest_version = latest.clone();
+            if entry.current_version.is_none() {
+                entry.current_version = Some(latest.unwrap_or_else(|| "Unknown".into()));
+            }
+        }
+        Ok(())
+    }
+
+    /// Returns failures separately so a partial refresh is never presented as complete.
+
+    pub fn check_updates(&mut self, store: &Store) -> Result<(usize, Vec<String>)> {
+        let mut updated = 0;
+        let mut failures = Vec::new();
+        for repo in store.watchlist()? {
+            match self.releases(store, &repo.owner, &repo.name, true) {
+                Ok(releases) => {
+                    store.update_version(
+                        repo.id,
+                        releases
+                            .iter()
+                            .find(|r| !r.prerelease && !r.draft)
+                            .map(|r| r.tag_name.as_str()),
+                    )?;
+                    updated += 1;
+                }
+                Err(error) => failures.push(format!("{}/{}: {error}", repo.owner, repo.name)),
+            }
+        }
+        Ok((updated, failures))
     }
 }
 
