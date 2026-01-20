@@ -111,6 +111,42 @@
 
 ---
 
+## 🐰 CodeRabbit PR Review (v3.0.0)
+
+> Feedback from automated PR review. Address before merge.
+
+### Backend
+
+| ID | File | Issue | Action |
+|----|------|-------|--------|
+| CR-BE-1 | `config.py:35-38` | Deprecated inner `class Config` | Replace with `model_config = SettingsConfigDict(...)` |
+| CR-BE-2 | `models/cache.py:9-22` | Missing unique constraint | Add `UniqueConstraint("username", "endpoint_type")` to `CacheEntry` |
+| CR-BE-3 | `models/github.py:25-28` | Redundant `UniqueConstraint` on PK `sha` | Remove constraint, add `Index('ix_repo_date', 'repo', 'date')` |
+| CR-BE-4 | `routers/replay.py:272-300` | `sync_repo_commits` truncates history (limit=10000) | Remove hard-coded limit, fix commit numbering sequence |
+| CR-BE-5 | `routers/settings.py` | `download_asset` has no URL validation | Add SSRF protection: validate scheme, hostname allowlist, block private IPs |
+| CR-BE-6 | `routers/settings.py:31-59` | `get_saved_token` returns raw decrypted token | Return masked value (e.g., `****abcd`) instead of full secret |
+| CR-BE-7 | `routers/watchlist.py:152-193` | `check_updates` mutates ORM in concurrent tasks | Return results from tasks, mutate sequentially after `asyncio.gather` |
+| CR-BE-8 | `services/github_service.py:26-63` | `_update_rate_limit` commits independently | Replace `commit()` with `flush()`, add `rollback()` in exception handler |
+| CR-BE-9 | `services/github_service.py:215-260` | `fetch_recent_commits` drops error payloads | Detect and return error list immediately before empty-check logic |
+| CR-BE-10 | `tests/security_verification.py:17-26` | Secret-looking test literal `ghp_...` | Replace with neutral placeholder like `test-token-123` |
+| CR-BE-11 | `utils/security.py:73-80` | Path containment bypass via `startswith` | Use `Path.is_relative_to()` for proper containment check |
+
+### Frontend
+
+| ID | File | Issue | Action |
+|----|------|-------|--------|
+| CR-FE-1 | `api/client.ts:156-163` | `addToWatchlist` expects `{ success }` but backend returns `{ message }` | Synthesize `success` from `res.ok` or presence of `message` |
+| CR-FE-2 | `components/discovery/RepoList.tsx` | Render-time state updates from `fetchContributions()` | Wrap in `useCallback` + `useEffect`, remove render-time call |
+| CR-FE-3 | `components/replay/EnvManager.tsx:63-81` | `handleSave` proceeds without required identifiers | Add guards for `repoId`/`commitHash` based on scope, early return with toast |
+| CR-FE-4 | `components/replay/FileTree.tsx:31-41` | Tree row not keyboard-accessible | Add `role="button"`, `tabIndex={0}`, `aria-expanded`, `onKeyDown` handler |
+| CR-FE-5 | `components/replay/ServerList.tsx:42-45` | `window.open` leaves `opener` exposed | Use `window.open(url, '_blank', 'noopener,noreferrer')` |
+| CR-FE-6 | `components/ui/Badge.tsx:26-35` | Interactive `<span>` with `onClick` | Render `<button>` when `onClick` is provided |
+| CR-FE-7 | `pages/Discovery.tsx:101-161` | `fetchCommitCounts` can overwrite newer results | Pass query param, verify match before `setDiscoveryState` |
+| CR-FE-8 | `pages/Replay.tsx:236-250` | `confirmDeleteRepo` calls `deleteReplayRepo` twice | Remove duplicate call |
+| CR-FE-9 | `pages/Watchlist.tsx:447-454` | Download button triggers parent card navigation | Add `e.stopPropagation()` before `handleDownloadAsset` |
+
+---
+
 ## Summary
 
 | Priority | Open | Completed |
@@ -122,13 +158,16 @@
 | 📋 Testing | 3 | 0 |
 | 📝 Documentation | 4 | 0 |
 | 🛡️ Security (Low) | 3 | 0 |
-| **Total** | **21** | **14** |
+| 🐰 CodeRabbit (BE) | 11 | 0 |
+| 🐰 CodeRabbit (FE) | 9 | 0 |
+| **Total** | **41** | **14** |
 
 ---
 
 ## Next Steps
 
-1. **Immediate:** Fix or remove incomplete test file (BUG-HIGH-3)
-2. **Short-Term:** Add database indexes (ARCH-5)
-3. **Medium-Term:** Split monolithic frontend files (ARCH-1-4)
-4. **Long-Term:** Build comprehensive test suite (TEST-1-2)
+1. **Immediate:** Address CodeRabbit PR review feedback (CR-BE-*, CR-FE-*)
+2. **Short-Term:** Fix or remove incomplete test file (BUG-HIGH-3)
+3. **Medium-Term:** Add database indexes (ARCH-5)
+4. **Long-Term:** Split monolithic frontend files (ARCH-1-4)
+
