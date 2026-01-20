@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.1
+> **Version:** 0.1.2
 > **Last Updated:** 2026-01-20
 
 ---
+
+## [0.1.2] - 2026-01-20
+
+- Added loopback static snapshots with concurrent requests, nested redirects, MIME handling, stop and port reuse.
 
 ## [0.1.1] - 2026-01-20
 
