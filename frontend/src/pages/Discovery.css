@@ -1,0 +1,33 @@
+/**
+ * GitNexus v3.0.0 - Discovery Page Styles
+ * 
+ * Specific overrides for Discovery page layout. 
+ * Most styles are in globally imported index.css (ported from demo-git-nexus).
+ */
+
+.discovery-container {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.search-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Ensure controls container buttons align */
+.search-toolbar .btn {
+    height: 44px;
+    /* Match input height */
+}

@@ -1,0 +1,144 @@
+/* Overlay */
+.repo-manager-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Panel */
+.repo-manager-panel {
+    background: var(--md-sys-color-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.repo-manager-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.repo-manager-panel__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.repo-manager-panel__close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.repo-manager-panel__close:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+/* Tabs */
+.repo-manager-panel__tabs {
+    display: flex;
+    padding: 0 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.repo-manager-panel__tabs .tab-btn {
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.repo-manager-panel__tabs .tab-btn:hover {
+    color: var(--text-primary);
+}
+
+.repo-manager-panel__tabs .tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* Form */
+.repo-manager-panel__form {
+    padding: 1.25rem;
+}
+
+.form-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.form-input {
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: border-color 0.15s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.error-text {
+    color: var(--color-danger);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.full-width {
+    width: 100%;
+}

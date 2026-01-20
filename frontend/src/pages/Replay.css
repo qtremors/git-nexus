@@ -1,0 +1,57 @@
+.replay-container {
+    display: flex;
+    height: calc(100vh - 64px);
+    background-color: var(--md-sys-color-background);
+    overflow: hidden;
+}
+
+/* Sidebar - File Tree (IDE-like) */
+.replay-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--md-sys-color-surface);
+    border-right: 1px solid var(--md-sys-color-outline);
+    overflow: hidden;
+}
+
+/* Main Content Area */
+.replay-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Card Base - No visible borders for IDE look */
+.card {
+    background-color: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .replay-container {
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 64px);
+    }
+
+    .replay-sidebar {
+        width: 100%;
+        max-height: 260px;
+        border-right: none;
+        border-bottom: 1px solid var(--md-sys-color-outline);
+    }
+}
+
+@media (max-width: 600px) {
+    .replay-sidebar {
+        display: none;
+    }
+}

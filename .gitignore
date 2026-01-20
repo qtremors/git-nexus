@@ -1,52 +1,59 @@
-# -------------------------
-# Python / Flask ignores
-# -------------------------
-
-# Bytecode cache
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual environments
+*.py[cod]
+*$py.class
+*.so
+.Python
 .venv/
 venv/
-env/
-
-# Flask instance folder (stores secrets + DBs)
-instance/
-*.db
-*.sqlite3
-
-# Environment variables / secrets
-.env
-*.env
-
-# pyproject / build artifacts
-build/
-dist/
+ENV/
+.eggs/
 *.egg-info/
+*.egg
 
-# VS Code
+# Node
+node_modules/
+dist/
+.npm
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Data
+data/
+workspaces/
+*.db
+*.sqlite
+downloads/
+
+# IDE
 .vscode/
-
-# Logs
-*.log
-
-# Python version file
-.python-version
-
-# Uvicorn / UWSGI / Gunicorn temp files
-*.pid
-
-# OS-specific junk
-.DS_Store
-Thumbs.db
-
-# Lockfiles created by package managers
-uv.lock
-
-# Backup files created by editors
+.idea/
 *.swp
 *.swo
 *~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build
+build/
+*.manifest
+*.spec
+
+# Old reference folders (keep for development reference)
+# git-nexus-old/
+# repo-replay-old/
