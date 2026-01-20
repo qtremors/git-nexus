@@ -1,0 +1,76 @@
+.file-tree {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.file-tree__header {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.file-tree__title {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.file-tree__content {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.file-tree__loading,
+.file-tree__error,
+.file-tree__empty {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Tree Item Styles - IDE Explorer */
+.tree-item__row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    user-select: none;
+    min-height: 26px;
+}
+
+.tree-item__row:hover {
+    background-color: var(--md-sys-color-surface-variant);
+}
+
+.tree-item__icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    opacity: 0.9;
+}
+
+.tree-item__icon.directory {
+    color: #dcb67a;
+}
+
+.tree-item__icon.file {
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 1rem;
+}
+
+.tree-item__name {
+    font-size: 0.85rem;
+    color: var(--md-sys-color-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

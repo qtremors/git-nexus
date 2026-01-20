@@ -1,0 +1,101 @@
+.server-list {
+    flex-shrink: 0;
+    padding: 0.65rem 1rem;
+    background: var(--md-sys-color-surface);
+    border-bottom: 1px solid var(--md-sys-color-outline);
+}
+
+.server-list__title {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.server-list__title .badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 10px;
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+    font-weight: 600;
+}
+
+.server-list__items {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+}
+
+.server-card {
+    background-color: var(--md-sys-color-surface-variant);
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 6px;
+    padding: 0.5rem 0.7rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 220px;
+    flex-shrink: 0;
+}
+
+.server-card__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.server-card__header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.1rem;
+}
+
+.server-card__repo {
+    font-weight: 500;
+    font-size: 0.8rem;
+    color: var(--md-sys-color-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.server-card__hash {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.7rem;
+    color: var(--md-sys-color-on-surface-variant);
+    background: var(--md-sys-color-surface);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.server-card__url a {
+    color: var(--md-sys-color-primary);
+    text-decoration: none;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.server-card__url a:hover {
+    text-decoration: underline;
+}
+
+.server-card__actions {
+    display: flex;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.server-card__actions .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+}

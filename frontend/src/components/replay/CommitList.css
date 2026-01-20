@@ -1,0 +1,187 @@
+.commit-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    background: var(--md-sys-color-surface);
+    overflow: hidden;
+}
+
+.commit-list__title {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--md-sys-color-on-surface-variant);
+    border-bottom: 1px solid var(--md-sys-color-outline);
+    flex-shrink: 0;
+}
+
+.commit-list__empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    font-size: 0.9rem;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.commit-list__items {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.commit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--md-sys-color-outline);
+    transition: background-color 0.1s ease;
+    cursor: pointer;
+}
+
+.commit-item:hover {
+    background-color: var(--md-sys-color-surface-variant);
+}
+
+.commit-item.selected {
+    background-color: rgba(0, 133, 208, 0.1);
+    border-left: 3px solid var(--md-sys-color-primary);
+    padding-left: calc(1rem - 3px);
+}
+
+.commit-item__number {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.75rem;
+    color: var(--md-sys-color-on-surface-variant);
+    min-width: 48px;
+    text-align: right;
+    opacity: 0.7;
+}
+
+.commit-item__info {
+    flex: 1;
+    min-width: 0;
+}
+
+.commit-item__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.15rem;
+}
+
+.commit-item__hash {
+    font-family: 'Consolas', 'Monaco', monospace;
+    background-color: var(--md-sys-color-surface-variant);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--md-sys-color-primary);
+}
+
+.commit-item.selected .commit-item__hash {
+    background-color: var(--md-sys-color-primary);
+    color: white;
+}
+
+.replay-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.badge-success {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+}
+
+.badge-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+.badge-danger {
+    background-color: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+}
+
+.commit-item__message {
+    font-weight: 400;
+    font-size: 0.9rem;
+    margin-bottom: 0.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--md-sys-color-on-surface);
+}
+
+.commit-item__meta {
+    font-size: 0.75rem;
+    color: var(--md-sys-color-on-surface-variant);
+}
+
+.commit-item__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+.btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+
+/* Load More Button */
+.commit-list__load-more {
+    padding: 0.65rem 1rem;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid var(--md-sys-color-outline);
+    flex-shrink: 0;
+}
+
+.commit-list__load-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: transparent;
+    border: 1px solid var(--md-sys-color-outline);
+    border-radius: 6px;
+    color: var(--md-sys-color-on-surface-variant);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.commit-list__load-btn:hover {
+    background: var(--md-sys-color-surface-variant);
+    border-color: var(--md-sys-color-on-surface-variant);
+    color: var(--md-sys-color-on-surface);
+}
+
+.commit-list__load-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.commit-list__load-btn .material-symbols-outlined {
+    font-size: 1.1rem;
+}
+
+.commit-list__count {
+    padding: 0.4rem 1rem;
+    text-align: right;
+    font-size: 0.75rem;
+    color: var(--md-sys-color-on-surface-variant);
+    border-top: 1px solid var(--md-sys-color-outline);
+    flex-shrink: 0;
+}

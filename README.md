@@ -1,61 +1,86 @@
 <p align="center">
-  <img src="static/assets/octocat.svg" alt="GitNexus Logo" width="120"/>
+  <img src="frontend/public/octocat.svg" alt="GitNexus Logo" width="120"/>
 </p>
 
-<h1 align="center"><a href="https://qtremors.github.io/scrap/projects/demo/demo-git-nexus/">GitNexus</a></h1>
+<h1 align="center">GitNexus</h1>
 
 <p align="center">
-  A comprehensive, self-hosted dashboard designed to bridge the gap between GitHub's vast repository network and your local machine.
-</p>
-<p align="center">
-  It functions as a hybrid between a <b>User Discovery Engine</b>, a <b>Repository Analyzer</b>, and a <b>Personal Asset Watchtower</b>.
+  <b>Your GitHub Command Center</b>
 </p>
 
 <p align="center">
+  A powerful, self-hosted dashboard that bridges the gap between the cloud and your local machine.<br/>
+  Discover users, track releases, and time-travel through commit history - all in one unified workspace.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Version-3.0.0-blue?style=flat&logo=git" alt="Version">
   <img src="https://img.shields.io/badge/Python-3.11+-blue?logo=python" alt="Python">
-  <img src="https://img.shields.io/badge/Flask-3.1.2-green?logo=flask" alt="Flask">
+  <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React">
+  <img src="https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi" alt="FastAPI">
   <img src="https://img.shields.io/badge/License-TSL-red" alt="License">
 </p>
 
 > [!NOTE]
-> **Personal Project** 🎯 I built this to solve my own need for better analyzing and archiving GitHub tools. It bridges the gap between "browsing" code and "owning" it locally.
+> **Personal Project** 🎯 I built this to bridge the gap between cloud and local development. Feel free to explore and learn from it!
 
-## Live Website 
-
-**➡️ [Legacy Static Demo](https://qtremors.github.io/scrap/projects/demo/demo-git-nexus/)**
-
-> **Live Demo Limitations**: The live link is a legacy static prototype (v0.1). It **does not** include the active downloader or Python backend features of this v2.0 release.
+> [!TIP]
+> **Upgrading from v2.0.0?** See [MIGRATION.md](MIGRATION.md) for the complete upgrade guide.
 
 ---
 
 ## ✨ Features
 
-| Feature | Description |
-|---------|-------------|
-| 🔍 **Deep Discovery** | Instantly fetch standard user profiles, view bio stats, and render contribution graphs. |
-| 📂 **Repo Explorer** | View a user's entire repository catalog in a sortable grid with language breakdown charts. |
-| 🔭 **Asset Watchtower** | Build a "Watchlist" of tools. The system glows **Green** when a new release is detected. |
-| 📥 **Server-Side Downloader** | Bypass browser limits to download assets directly to your local drive (`/Downloads/{Repo}/{File}`). |
-| 🎨 **Theme Engine** | Switch between Dark Contrast, GitHub Dimmed, and AMOLED Deep Blue themes. |
-| 🔒 **Secure Mode** | Mask your API token in the UI to prevent shoulder-surfing during demos. |
+### 🔍 Discovery Engine
+Deep dive into any GitHub user's profile. Visualize statistics, filter repositories by language/topic, view contribution graphs, and download repos directly to your machine.
+
+### 🔭 Asset Watchtower
+Never miss a release again. Build a watchlist of your favorite tools, get visual indicators when updates are available, and download assets directly - bypassing browser limitations.
+
+### ⏪ Repo Replay (NEW in v3.0.0)
+"Time Travel" for your code. Add any Git repository, browse the complete commit history, and spin up isolated dev servers for any commit. Perfect for:
+- Debugging regressions by comparing versions
+- Demoing historical states to stakeholders
+- Running multiple versions simultaneously
+
+### ⚙️ Local-First Privacy
+All data stays on your machine. SQLite database, local file storage, and encrypted secrets. No telemetry, no cloud dependencies.
 
 ---
 
 ## 🚀 Quick Start
 
 ```bash
-# Clone and navigate
+# Clone the repository
 git clone https://github.com/qtremors/git-nexus.git
 cd git-nexus
 
-# Install dependencies (using uv)
+# Backend Setup
+cd backend
 uv sync
+uv run uvicorn main:app --reload
+# API server starts at http://127.0.0.1:8000
 
-# Run the application
-uv run app.py
+# Frontend Setup (new terminal)
+cd frontend
+npm install
+npm run dev
+# UI available at http://127.0.0.1:5173
 ```
 
-Visit **http://127.0.0.1:5000**
+**Visit** → http://127.0.0.1:5173
+
+### Configuration (Optional)
+
+Create `backend/.env` for enhanced security:
+
+```env
+# Generate with: uv run python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+FERNET_KEY=<your-generated-key>
+
+# For higher GitHub API rate limits
+GITHUB_TOKEN=<your-personal-access-token>
+```
 
 ---
 
@@ -63,9 +88,10 @@ Visit **http://127.0.0.1:5000**
 
 | Layer | Technology |
 |-------|------------|
-| **Backend** | Python 3.11+, Flask, SQLAlchemy (SQLite), GitHub REST API |
-| **Frontend** | Vanilla JavaScript (ES6), Glassmorphism CSS, Jinja2 Templates |
-| **Tools** | `uv` (Package Manager), `marked.js` (Markdown Parsing) |
+| **Frontend** | React 19, TypeScript, Vite, Tailwind + Glassmorphism CSS |
+| **Backend** | FastAPI (Python 3.11+), SQLAlchemy Async, Pydantic |
+| **Database** | SQLite (aiosqlite) |
+| **External API** | GitHub REST API v3 |
 
 ---
 
@@ -73,24 +99,27 @@ Visit **http://127.0.0.1:5000**
 
 ```
 git-nexus/
-├── app/                  # Flask Backend (Routes, Models, Services)
-├── static/               # Frontend Assets (CSS, JS, Images)
-├── templates/            # Jinja2 HTML Templates
-├── DEVELOPMENT.md        # Developer documentation
-├── CHANGELOG.md          # Version history
-├── LICENSE.md            # License terms
+├── backend/                  # FastAPI async backend
+│   ├── routers/              # API route handlers
+│   ├── services/             # Business logic layer
+│   ├── models/               # SQLAlchemy ORM models
+│   ├── adapters/             # Runtime adapters (servers)
+│   ├── utils/                # Crypto, security, logging
+│   ├── data/                 # SQLite database
+│   └── main.py               # Entry point
+├── frontend/                 # React SPA
+│   ├── src/
+│   │   ├── api/              # API client
+│   │   ├── components/       # Reusable components
+│   │   ├── pages/            # Route pages
+│   │   └── store/            # State management
+│   └── package.json
+├── workspaces/               # Git worktrees for Replay
+├── DEVELOPMENT.md            # Developer documentation
+├── CHANGELOG.md              # Version history
+├── MIGRATION.md              # v2 → v3 upgrade guide
+├── LICENSE.md                # License terms
 └── README.md
-```
-
----
-
-## 🧪 Testing
-
-*(Tests are planned for a future update)*
-
-```bash
-# Future command
-uv run pytest
 ```
 
 ---
@@ -99,9 +128,24 @@ uv run pytest
 
 | Document | Description |
 |----------|-------------|
-| [DEVELOPMENT.md](DEVELOPMENT.md) | Architecture, setup, API reference |
+| [DEVELOPMENT.md](DEVELOPMENT.md) | Architecture, API reference, setup guide |
 | [CHANGELOG.md](CHANGELOG.md) | Version history and release notes |
+| [MIGRATION.md](MIGRATION.md) | Upgrading from v2.0.0 |
 | [LICENSE.md](LICENSE.md) | License terms and attribution |
+
+---
+
+## 🧪 Testing
+
+```bash
+# Backend Tests
+cd backend
+uv run pytest
+
+# Frontend Build Check
+cd frontend
+npm run build
+```
 
 ---
 
