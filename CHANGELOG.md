@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.0
+> **Version:** 0.1.1
 > **Last Updated:** 2026-01-20
 
 ---
+
+## [0.1.1] - 2026-01-20
+
+- Added streamed, atomic downloads with trusted destinations, filename validation and no-overwrite saves.
 
 ## [0.1.0] - 2026-01-20
 

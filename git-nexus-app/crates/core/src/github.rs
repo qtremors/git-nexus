@@ -401,6 +401,86 @@ impl GitHub {
         }
         Ok((updated, failures))
     }
+
+    pub fn download(&self, store: &Store, url: &str, name: &str) -> Result<PathBuf> {
+        self.download_into(store, url, name, None)
+    }
+
+    pub fn download_into(
+        &self,
+        store: &Store,
+        url: &str,
+        name: &str,
+        folder: Option<&str>,
+    ) -> Result<PathBuf> {
+        validate_download_url(url)?;
+        let directory = download_directory(store, folder)?;
+        let mut request = self
+            .client
+            .get(url)
+            .header(USER_AGENT, concat!("GitNexus/", env!("CARGO_PKG_VERSION"), " native"))
+            .header(ACCEPT, "application/octet-stream")
+            .timeout(Duration::from_secs(300));
+        if Url::parse(url)?.host_str() == Some("api.github.com")
+            && let Some(token) = store.token()?
+        {
+            request = request.bearer_auth(token);
+        }
+        let response = request.send()?.error_for_status()?;
+        save_download(response, &directory, name)
+    }
+}
+
+fn download_directory(store: &Store, folder: Option<&str>) -> Result<PathBuf> {
+    let root = store
+        .setting("download_path")?
+        .map(PathBuf::from)
+        .unwrap_or_else(|| store.directory.join("downloads"));
+    fs::create_dir_all(&root)?;
+    let root = root.canonicalize()?;
+    ensure!(
+        root.parent().is_some(),
+        "Cannot download into filesystem root"
+    );
+    let Some(folder) = folder else {
+        return Ok(root);
+    };
+    let directory = root.join(sanitize_filename(folder));
+    fs::create_dir_all(&directory)?;
+    let directory = directory.canonicalize()?;
+    ensure!(
+        directory.starts_with(&root) && directory != root,
+        "Download directory must remain below the configured folder"
+    );
+    Ok(directory)
+}
+
+fn save_download(
+    mut response: Response,
+    directory: &std::path::Path,
+    name: &str,
+) -> Result<PathBuf> {
+    let destination = directory.join(sanitize_filename(name));
+    ensure!(
+        !destination.exists(),
+        "Download already exists; choose another directory or remove it explicitly"
+    );
+    let temporary = directory.join(format!(".{}.part", uuid::Uuid::new_v4()));
+    let result = (|| -> Result<()> {
+        let mut file = fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)?;
+        response.copy_to(&mut file)?;
+        file.flush()?;
+        file.sync_all()?;
+        // A hard link atomically fails if another download claimed the destination.
+        fs::hard_link(&temporary, &destination)?;
+        Ok(())
+    })();
+    let _ = fs::remove_file(&temporary);
+    result?;
+    Ok(destination)
 }
 
 pub fn validate_identity(owner: &str, name: &str) -> Result<()> {
