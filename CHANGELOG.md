@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.3
+> **Version:** 0.1.4
 > **Last Updated:** 2026-01-21
 
 ---
+
+## [0.1.4] - 2026-01-21
+
+- Added the native desktop window, Home, navigation, bounded background jobs and independent notifications.
 
 ## [0.1.3] - 2026-01-21
 
