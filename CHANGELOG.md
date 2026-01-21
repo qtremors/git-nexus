@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.2
-> **Last Updated:** 2026-01-20
+> **Version:** 0.1.3
+> **Last Updated:** 2026-01-21
 
 ---
+
+## [0.1.3] - 2026-01-21
+
+- Added core regression coverage for storage, Git, downloads, cached GitHub responses and Replay HTTP behavior.
 
 ## [0.1.2] - 2026-01-20
 

@@ -380,7 +380,6 @@ impl GitHub {
     }
 
     /// Returns failures separately so a partial refresh is never presented as complete.
-
     pub fn check_updates(&mut self, store: &Store) -> Result<(usize, Vec<String>)> {
         let mut updated = 0;
         let mut failures = Vec::new();
@@ -567,3 +566,442 @@ pub fn sanitize_filename(input: &str) -> String {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn configuration_import_resolves_metadata_before_committing() -> Result<()> {
+        ensure!(
+            !std::env::var("GITHUB_TOKEN").is_ok_and(|token| !token.trim().is_empty()),
+            "Loopback fixtures must not receive an environment token"
+        );
+        let (mut github, worker) = fixture(vec![("/repos/owner/missing", 404, "missing", None)])?;
+        let dir = tempfile::tempdir()?;
+        let mut store = Store::open(dir.path())?;
+        store.watch("owner", "existing", &GitHubRepo::default(), Some("v0.9"))?;
+        for name in ["first", "second"] {
+            let repo = GitHubRepo {
+                name: name.into(),
+                full_name: format!("owner/{name}"),
+                description: Some(format!("Metadata for {name}")),
+                html_url: format!("https://github.com/owner/{name}"),
+                ..Default::default()
+            };
+            store.cache_put(
+                &format!("github:/repos/owner/{name}"),
+                &serde_json::to_value(repo)?,
+                60,
+            )?;
+            store.cache_put(
+                &format!("github:/repos/owner/{name}/releases?per_page=30"),
+                &serde_json::to_value(vec![
+                    Release {
+                        tag_name: "v3-draft".into(),
+                        draft: true,
+                        ..Default::default()
+                    },
+                    Release {
+                        tag_name: "v2-beta".into(),
+                        prerelease: true,
+                        ..Default::default()
+                    },
+                    Release {
+                        tag_name: "v1.0".into(),
+                        ..Default::default()
+                    },
+                ])?,
+                60,
+            )?;
+        }
+        let config = dir.path().join("config.json");
+        fs::write(
+            &config,
+            r#"[{"owner":"OWNER","name":"existing"},{"owner":"owner","name":"first"}]"#,
+        )?;
+        let mut entries = Store::read_watchlist_import(&config)?;
+        github.prepare_watchlist_import(&store, &mut entries)?;
+        assert_eq!(store.watchlist()?.len(), 1);
+        assert_eq!(store.import_watchlist_entries(&entries)?, 1);
+        let repos = store.watchlist()?;
+        assert_eq!(repos[0].current_version, "v0.9");
+        assert_eq!(repos[1].description.as_deref(), Some("Metadata for first"));
+        assert_eq!(
+            repos[1].html_url.as_deref(),
+            Some("https://github.com/owner/first")
+        );
+        assert_eq!(repos[1].current_version, "v1.0");
+        assert_eq!(repos[1].latest_version.as_deref(), Some("v1.0"));
+        assert_eq!(store.import_watchlist_entries(&entries)?, 0);
+
+        fs::write(
+            &config,
+            r#"[{"owner":"owner","name":"second"},{"owner":"owner","name":"missing"}]"#,
+        )?;
+        let mut entries = Store::read_watchlist_import(&config)?;
+        let error = github
+            .prepare_watchlist_import(&store, &mut entries)
+            .unwrap_err();
+        assert!(error.to_string().contains("owner/missing"));
+        assert_eq!(store.watchlist()?.len(), 2);
+        worker.join().unwrap();
+        Ok(())
+    }
+
+    #[test]
+    fn forced_refresh_bypasses_independent_caches() -> Result<()> {
+        ensure!(
+            !std::env::var("GITHUB_TOKEN").is_ok_and(|token| !token.trim().is_empty()),
+            "The loopback fixture must not receive an environment GitHub token"
+        );
+        let server =
+            tiny_http::Server::http("127.0.0.1:0").map_err(|error| anyhow::anyhow!("{error}"))?;
+        let address = format!("http://{}", server.server_addr());
+        let worker = std::thread::spawn(move || {
+            for (path, body) in [
+                ("/repos/fixture/project/readme", "# Fresh README"),
+                (
+                    "/repos/fixture/project/commits?per_page=100&page=1",
+                    r#"[{"sha":"fresh"}]"#,
+                ),
+                (
+                    "/repos/fixture/project/commits?per_page=1",
+                    r#"[{"sha":"fresh"}]"#,
+                ),
+            ] {
+                let request = server
+                    .recv_timeout(Duration::from_secs(5))
+                    .unwrap()
+                    .unwrap();
+                assert_eq!(request.url(), path);
+                request
+                    .respond(tiny_http::Response::from_string(body))
+                    .unwrap();
+            }
+        });
+        let dir = tempfile::tempdir()?;
+        let store = Store::open(dir.path())?;
+        store.cache_put("readme:fixture/project", &Value::from("# Old README"), 60)?;
+        store.cache_put(
+            "github:/repos/fixture/project/commits?per_page=100&page=1",
+            &serde_json::json!([{"sha":"old"}]),
+            60,
+        )?;
+        store.cache_put("count:fixture/project", &Value::from(99), 60)?;
+        let mut github = GitHub {
+            client: Client::builder()
+                .no_proxy()
+                .timeout(Duration::from_secs(2))
+                .build()?,
+            base: address,
+            rate_remaining: None,
+        };
+        assert_eq!(github.readme(&store, "fixture", "project")?, "# Old README");
+        assert_eq!(
+            github.commits(&store, "fixture", "project", 1)?[0]["sha"],
+            "old"
+        );
+        assert_eq!(
+            github.commit_count(&store, "fixture", "project", false)?,
+            99
+        );
+        assert_eq!(
+            github.readme_refreshed(&store, "fixture", "project", true)?,
+            "# Fresh README"
+        );
+        assert_eq!(
+            github.commits_refreshed(&store, "fixture", "project", 1, true)?[0]["sha"],
+            "fresh"
+        );
+        assert_eq!(github.commit_count(&store, "fixture", "project", true)?, 1);
+        worker.join().unwrap();
+        // Once the fixture stops, ordinary reads must use the replaced caches.
+        assert_eq!(
+            github.readme(&store, "fixture", "project")?,
+            "# Fresh README"
+        );
+        assert_eq!(
+            github.commits(&store, "fixture", "project", 1)?[0]["sha"],
+            "fresh"
+        );
+        assert_eq!(github.commit_count(&store, "fixture", "project", false)?, 1);
+        Ok(())
+    }
+    #[test]
+    fn identities_and_download_hosts_reject_traversal_and_ssrf() {
+        assert_eq!(
+            parse_identity("https://github.com/qtremors/git-nexus.git").unwrap(),
+            ("qtremors".into(), "git-nexus".into())
+        );
+        for input in [
+            "../repo",
+            "owner/../../etc",
+            "https://example.com/a/b",
+            "https://github.com@evil.test/a/b",
+            "https://github.com/a/b?token=secret",
+        ] {
+            assert!(parse_identity(input).is_err(), "{input}");
+        }
+        for input in [
+            "http://github.com/a",
+            "https://127.0.0.1/a",
+            "https://github.com.evil.test/a",
+            "https://github.com:444/a",
+        ] {
+            assert!(validate_download_url(input).is_err(), "{input}");
+        }
+        assert!(validate_download_url("https://release-assets.githubusercontent.com/a").is_ok());
+        assert_eq!(sanitize_filename("../../etc/file.zip"), "etcfile.zip");
+    }
+    #[test]
+    fn public_discovery_uses_real_http_and_cache() -> Result<()> {
+        use tiny_http::{Response, Server};
+        let server = Server::http("127.0.0.1:0").map_err(|e| anyhow::anyhow!("{e}"))?;
+        let address = format!("http://{}", server.server_addr());
+        let worker = std::thread::spawn(move || {
+            for _ in 0..2 {
+                let request = server
+                    .recv_timeout(Duration::from_secs(5))
+                    .unwrap()
+                    .unwrap();
+                let response = if request.url().contains("/repos?") {
+                    "[]"
+                } else {
+                    r#"{"login":"qtremors","name":null,"bio":null,"avatar_url":"","html_url":"","followers":1,"following":0,"public_repos":0}"#
+                };
+                request.respond(Response::from_string(response)).unwrap();
+            }
+        });
+        let directory = tempfile::tempdir()?;
+        let store = Store::open(directory.path())?;
+        let mut github = GitHub {
+            client: Client::builder().no_proxy().build()?,
+            base: address,
+            rate_remaining: None,
+        };
+        assert_eq!(
+            github.discover(&store, "qtremors", false)?.0.login,
+            "qtremors"
+        );
+        worker.join().unwrap();
+        // The server has exited: this only succeeds if both responses were cached.
+        assert_eq!(github.discover(&store, "qtremors", false)?.0.followers, 1);
+        assert_eq!(store.search_history()?, vec!["qtremors"]);
+        Ok(())
+    }
+    fn fixture(
+        responses: Vec<(&'static str, u16, &'static str, Option<&'static str>)>,
+    ) -> Result<(GitHub, std::thread::JoinHandle<()>)> {
+        let server = tiny_http::Server::http("127.0.0.1:0").map_err(|e| anyhow::anyhow!("{e}"))?;
+        let address = format!("http://{}", server.server_addr());
+        let worker = std::thread::spawn(move || {
+            for (endpoint, status, body, link) in responses {
+                let request = server
+                    .recv_timeout(Duration::from_secs(5))
+                    .unwrap()
+                    .expect("Missing expected HTTP request");
+                assert_eq!(request.url(), endpoint);
+                let mut response = tiny_http::Response::from_string(body).with_status_code(status);
+                if let Some(link) = link {
+                    response.add_header(tiny_http::Header::from_bytes("Link", link).unwrap());
+                }
+                request.respond(response).unwrap();
+            }
+        });
+        Ok((
+            GitHub {
+                client: Client::builder().no_proxy().build()?,
+                base: address,
+                rate_remaining: None,
+            },
+            worker,
+        ))
+    }
+
+    #[test]
+    fn commit_pagination_empty_repos_and_cached_counts() -> Result<()> {
+        let (mut github, worker) = fixture(vec![
+            (
+                "/repos/owner/repo/commits?per_page=1",
+                200,
+                "[]",
+                Some(
+                    "<https://api.github.com/repos/owner/repo/commits?per_page=1&page=42>; rel=\"last\"",
+                ),
+            ),
+            (
+                "/repos/owner/repo/commits?per_page=100&page=2",
+                200,
+                "[{\"sha\":\"abc1234\"}]",
+                None,
+            ),
+            (
+                "/repos/owner/empty/commits?per_page=100&page=1",
+                409,
+                "{\"message\":\"Git Repository is empty.\"}",
+                None,
+            ),
+            (
+                "/repos/owner/empty/commits?per_page=1",
+                409,
+                "{\"message\":\"Git Repository is empty.\"}",
+                None,
+            ),
+            (
+                "/repos/owner/missing/commits?per_page=100&page=1",
+                404,
+                "{}",
+                None,
+            ),
+        ])?;
+        let dir = tempfile::tempdir()?;
+        let store = Store::open(dir.path())?;
+        assert_eq!(github.commit_count(&store, "owner", "repo", false)?, 42);
+        assert_eq!(
+            github.commits(&store, "owner", "repo", 2)?[0]["sha"],
+            "abc1234"
+        );
+        assert!(github.commits(&store, "owner", "empty", 1)?.is_empty());
+        assert_eq!(github.commit_count(&store, "owner", "empty", false)?, 0);
+        assert!(github.commits(&store, "owner", "missing", 1).is_err());
+        worker.join().unwrap();
+        assert_eq!(github.commit_count(&store, "owner", "repo", false)?, 42);
+        assert!(github.commits(&store, "owner", "empty", 1)?.is_empty());
+        Ok(())
+    }
+
+    #[test]
+    fn release_refresh_preserves_current_version_and_reports_partial_failure() -> Result<()> {
+        let (mut github, worker) = fixture(vec![
+            (
+                "/repos/owner/repo/releases?per_page=30",
+                200,
+                r#"[{"id":1,"tag_name":"v3-beta","html_url":"","prerelease":true},{"id":2,"tag_name":"v4-draft","html_url":"","draft":true},{"id":3,"tag_name":"v2","html_url":""}]"#,
+                None,
+            ),
+            ("/repos/owner/denied/releases?per_page=30", 403, "{}", None),
+        ])?;
+        let dir = tempfile::tempdir()?;
+        let store = Store::open(dir.path())?;
+        store.watch("owner", "repo", &GitHubRepo::default(), Some("v1"))?;
+        store.watch("owner", "denied", &GitHubRepo::default(), Some("v1"))?;
+        let (count, failures) = github.check_updates(&store)?;
+        assert_eq!(count, 1);
+        assert_eq!(failures.len(), 1);
+        let repos = store.watchlist()?;
+        assert_eq!(repos[0].current_version, "v1");
+        assert_eq!(repos[0].latest_version.as_deref(), Some("v2"));
+        assert!(repos[0].has_update());
+        assert_eq!(repos[1].latest_version.as_deref(), Some("v1"));
+        worker.join().unwrap();
+        Ok(())
+    }
+
+    #[test]
+    fn streamed_download_is_atomic_and_never_overwrites() -> Result<()> {
+        let (github, worker) = fixture(vec![
+            ("/asset", 200, "binary contents", None),
+            ("/asset", 200, "replacement", None),
+        ])?;
+        let dir = tempfile::tempdir()?;
+        let response = github.client.get(format!("{}/asset", github.base)).send()?;
+        let store = Store::open(dir.path().join("state"))?;
+        store.save_setting(
+            "download_path",
+            dir.path().join("downloads").to_str().unwrap(),
+        )?;
+        let destination = download_directory(&store, Some("project"))?;
+        assert!(destination.ends_with("downloads/project"));
+        let file = save_download(response, &destination, "../../asset.zip")?;
+        assert_eq!(std::fs::read(&file)?, b"binary contents");
+        let response = github.client.get(format!("{}/asset", github.base)).send()?;
+        assert!(save_download(response, &destination, "asset.zip").is_err());
+        assert_eq!(std::fs::read(file)?, b"binary contents");
+        assert_eq!(std::fs::read_dir(&destination)?.count(), 1);
+        assert!(
+            download_directory(&store, Some("../../outside"))?
+                .starts_with(dir.path().join("downloads").canonicalize()?)
+        );
+        worker.join().unwrap();
+        Ok(())
+    }
+    #[test]
+    fn discovery_fetches_more_than_one_hundred_repositories() -> Result<()> {
+        let server = tiny_http::Server::http("127.0.0.1:0").map_err(|e| anyhow::anyhow!("{e}"))?;
+        let address = format!("http://{}", server.server_addr());
+        let worker = std::thread::spawn(move || {
+            for page in 0..3 {
+                let request = server
+                    .recv_timeout(Duration::from_secs(5))
+                    .unwrap()
+                    .unwrap();
+                let data = if page == 0 {
+                    assert_eq!(request.url(), "/users/owner");
+                    serde_json::to_value(Profile {
+                        login: "owner".into(),
+                        ..Default::default()
+                    })
+                    .unwrap()
+                } else {
+                    assert_eq!(
+                        request.url(),
+                        format!("/users/owner/repos?per_page=100&sort=updated&page={page}")
+                    );
+                    serde_json::to_value(
+                        (0..if page == 1 { 100 } else { 1 })
+                            .map(|i| GitHubRepo {
+                                id: (page * 100 + i) as u64,
+                                name: format!("repo-{page}-{i}"),
+                                ..Default::default()
+                            })
+                            .collect::<Vec<_>>(),
+                    )
+                    .unwrap()
+                };
+                request
+                    .respond(tiny_http::Response::from_string(data.to_string()))
+                    .unwrap();
+            }
+        });
+        let dir = tempfile::tempdir()?;
+        let store = Store::open(dir.path())?;
+        let mut github = GitHub {
+            client: Client::builder().no_proxy().build()?,
+            base: address,
+            rate_remaining: None,
+        };
+        let (_, repos) = github.discover(&store, "owner", false)?;
+        assert_eq!(repos.len(), 101);
+        assert_eq!(repos[100].name, "repo-2-0");
+        worker.join().unwrap();
+        assert_eq!(github.discover(&store, "owner", false)?.1.len(), 101);
+        Ok(())
+    }
+
+    #[test]
+    fn interrupted_download_removes_partial_file() -> Result<()> {
+        use std::io::{Read, Write};
+        let listener = std::net::TcpListener::bind("127.0.0.1:0")?;
+        let address = listener.local_addr()?;
+        let worker = std::thread::spawn(move || {
+            let (mut stream, _) = listener.accept().unwrap();
+            let mut request = [0u8; 4096];
+            let _ = stream.read(&mut request).unwrap();
+            stream
+                .write_all(
+                    b"HTTP/1.1 200 OK\r\nContent-Length: 100\r\nConnection: close\r\n\r\nshort",
+                )
+                .unwrap();
+        });
+        let dir = tempfile::tempdir()?;
+        let response = Client::builder()
+            .no_proxy()
+            .build()?
+            .get(format!("http://{address}/asset"))
+            .send()?;
+        assert!(save_download(response, dir.path(), "asset.zip").is_err());
+        assert_eq!(std::fs::read_dir(dir.path())?.count(), 0);
+        worker.join().unwrap();
+        Ok(())
+    }
+}

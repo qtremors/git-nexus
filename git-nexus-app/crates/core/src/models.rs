@@ -89,6 +89,46 @@ impl Release {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn release_sources_are_visible_without_mutating_or_duplicating_cached_assets() {
+        let release = Release {
+            zipball_url: "https://api.github.com/repos/fixture/project/zipball/v1".into(),
+            tarball_url: "https://api.github.com/repos/fixture/project/tarball/v1".into(),
+            assets: vec![
+                ReleaseAsset {
+                    id: 7,
+                    name: "app.exe".into(),
+                    ..Default::default()
+                },
+                ReleaseAsset {
+                    name: "Source Code (zip)".into(),
+                    browser_download_url: "https://api.github.com/repos/fixture/project/zipball/v1"
+                        .into(),
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        };
+        let assets = release.display_assets();
+        assert_eq!(assets.len(), 3);
+        assert_eq!(assets[0].id, 7);
+        assert_eq!(
+            assets
+                .iter()
+                .filter(|asset| asset.browser_download_url == release.zipball_url)
+                .count(),
+            1
+        );
+        assert_eq!(assets[2].name, "Source Code (tar.gz)");
+        assert_eq!(assets[2].browser_download_url, release.tarball_url);
+        assert_eq!(release.assets.len(), 2);
+        assert!(Release::default().display_assets().is_empty());
+    }
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct WatchedRepo {
