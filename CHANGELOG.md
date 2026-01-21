@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.5
+> **Version:** 0.1.6
 > **Last Updated:** 2026-01-21
 
 ---
+
+## [0.1.6] - 2026-01-21
+
+- Added the contribution calendar, refresh feedback and selectable day details.
 
 ## [0.1.5] - 2026-01-21
 
