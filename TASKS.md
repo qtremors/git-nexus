@@ -1,7 +1,7 @@
 # GitNexus - Tasks
 
 > **Project:** GitNexus
-> **Version:** 3.0.0
+> **Version:** 3.0.1
 > **Last Updated:** 2026-01-21
 
 ---
@@ -39,8 +39,8 @@
 | ID | Issue | Action |
 |----|-------|--------|
 | ~~TEST-1~~ | ~~Minimal backend tests~~ | ✅ Added 49 tests (API, services, security) |
-| TEST-2 | No frontend tests | Add React Testing Library |
-| TEST-3 | Security tests need cleanup | Fix pytest compatibility |
+| ~~TEST-2~~ | ~~No frontend tests~~ | ✅ Added 20 tests (Badge, Modal, Toast) |
+| ~~TEST-3~~ | ~~Security tests need cleanup~~ | ✅ Updated to proper pytest patterns |
 
 ---
 
@@ -72,10 +72,10 @@
 | 🟠 High | 1 | 0 |
 | 🟡 Medium | 6 | 0 |
 | 🔵 Low | 4 | 0 |
-| 📋 Testing | 2 | 1 |
+| 📋 Testing | 0 | 3 |
 | 📝 Documentation | 4 | 0 |
 | 🛡️ Security (Low) | 3 | 0 |
-| **Total** | **20** | **1** |
+| **Total** | **18** | **3** |
 
 ---
 

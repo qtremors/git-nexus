@@ -1,6 +1,6 @@
 [project]
 name = "gitnexus"
-version = "3.0.0"
+version = "3.0.1"
 description = "GitNexus - Your GitHub Command Center"
 requires-python = ">=3.11"
 dependencies = [
