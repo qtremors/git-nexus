@@ -16,7 +16,8 @@ import pytest
 
 def test_encryption_decryption():
     """Verify SEC-2: Token encryption/decryption cycle."""
-    token = "ghp_1234567890abcdef"
+    # Use neutral placeholder instead of secret-looking string
+    token = "test-token-1234567890"
     
     encrypted = crypto_manager.encrypt(token)
     assert encrypted != token

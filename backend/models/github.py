@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import DateTime, Integer, String, Text, UniqueConstraint
+from sqlalchemy import DateTime, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
@@ -22,9 +22,9 @@ class GitHubCommit(Base):
     message: Mapped[str] = mapped_column(Text)
     url: Mapped[str] = mapped_column(String(255))
     
-    # Composite index for querying by repo and date
+    # Composite index for efficient querying by repo and date
     __table_args__ = (
-        UniqueConstraint('sha', name='uq_commit_sha'),
+        Index("ix_github_commits_repo_date", "repo_owner", "repo_name", "author_date"),
     )
 
 

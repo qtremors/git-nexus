@@ -119,17 +119,17 @@
 
 | ID | File | Issue | Action |
 |----|------|-------|--------|
-| CR-BE-1 | `config.py:35-38` | Deprecated inner `class Config` | Replace with `model_config = SettingsConfigDict(...)` |
-| CR-BE-2 | `models/cache.py:9-22` | Missing unique constraint | Add `UniqueConstraint("username", "endpoint_type")` to `CacheEntry` |
-| CR-BE-3 | `models/github.py:25-28` | Redundant `UniqueConstraint` on PK `sha` | Remove constraint, add `Index('ix_repo_date', 'repo', 'date')` |
-| CR-BE-4 | `routers/replay.py:272-300` | `sync_repo_commits` truncates history (limit=10000) | Remove hard-coded limit, fix commit numbering sequence |
-| CR-BE-5 | `routers/settings.py` | `download_asset` has no URL validation | Add SSRF protection: validate scheme, hostname allowlist, block private IPs |
-| CR-BE-6 | `routers/settings.py:31-59` | `get_saved_token` returns raw decrypted token | Return masked value (e.g., `****abcd`) instead of full secret |
-| CR-BE-7 | `routers/watchlist.py:152-193` | `check_updates` mutates ORM in concurrent tasks | Return results from tasks, mutate sequentially after `asyncio.gather` |
-| CR-BE-8 | `services/github_service.py:26-63` | `_update_rate_limit` commits independently | Replace `commit()` with `flush()`, add `rollback()` in exception handler |
-| CR-BE-9 | `services/github_service.py:215-260` | `fetch_recent_commits` drops error payloads | Detect and return error list immediately before empty-check logic |
-| CR-BE-10 | `tests/security_verification.py:17-26` | Secret-looking test literal `ghp_...` | Replace with neutral placeholder like `test-token-123` |
-| CR-BE-11 | `utils/security.py:73-80` | Path containment bypass via `startswith` | Use `Path.is_relative_to()` for proper containment check |
+| ~~CR-BE-1~~ | ~~`config.py:35-38`~~ | ~~Deprecated inner `class Config`~~ | ✅ Replaced with `model_config = SettingsConfigDict(...)` |
+| ~~CR-BE-2~~ | ~~`models/cache.py:9-22`~~ | ~~Missing unique constraint~~ | ✅ Added `UniqueConstraint("username", "endpoint_type")` |
+| ~~CR-BE-3~~ | ~~`models/github.py:25-28`~~ | ~~Redundant `UniqueConstraint` on PK `sha`~~ | ✅ Replaced with composite `Index` |
+| ~~CR-BE-4~~ | ~~`routers/replay.py:272-300`~~ | ~~`sync_repo_commits` truncates history (limit=10000)~~ | ✅ Removed hard-coded limit |
+| ~~CR-BE-5~~ | ~~`routers/settings.py`~~ | ~~`download_asset` has no URL validation~~ | ✅ Added SSRF protection with allowlist |
+| ~~CR-BE-6~~ | ~~`routers/settings.py:31-59`~~ | ~~`get_saved_token` returns raw decrypted token~~ | ✅ Returns masked value (last 4 chars) |
+| ~~CR-BE-7~~ | ~~`routers/watchlist.py:152-193`~~ | ~~`check_updates` mutates ORM in concurrent tasks~~ | ✅ Returns results, mutates sequentially after gather |
+| ~~CR-BE-8~~ | ~~`services/github_service.py:26-63`~~ | ~~`_update_rate_limit` commits independently~~ | ✅ Replaced with `flush()`, added `rollback()` |
+| ~~CR-BE-9~~ | ~~`services/github_service.py:215-260`~~ | ~~`fetch_recent_commits` drops error payloads~~ | ✅ Detects and returns errors immediately |
+| ~~CR-BE-10~~ | ~~`tests/security_verification.py:17-26`~~ | ~~Secret-looking test literal `ghp_...`~~ | ✅ Replaced with `test-token-1234567890` |
+| ~~CR-BE-11~~ | ~~`utils/security.py:73-80`~~ | ~~Path containment bypass via `startswith`~~ | ✅ Uses `Path.is_relative_to()` |
 
 ### Frontend
 
@@ -158,9 +158,9 @@
 | 📋 Testing | 3 | 0 |
 | 📝 Documentation | 4 | 0 |
 | 🛡️ Security (Low) | 3 | 0 |
-| 🐰 CodeRabbit (BE) | 11 | 0 |
+| 🐰 CodeRabbit (BE) | 0 | 11 |
 | 🐰 CodeRabbit (FE) | 0 | 9 |
-| **Total** | **32** | **23** |
+| **Total** | **21** | **34** |
 
 ---
 

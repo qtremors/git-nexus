@@ -18,7 +18,7 @@ from services import github_service
 from services.token_service import get_token_only
 from services.release_cache_service import release_cache_service
 from utils.crypto import crypto_manager
-from utils.security import sanitize_filename, validate_download_path, is_safe_path
+from utils.security import sanitize_filename, validate_download_path, is_safe_path, validate_download_url
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
@@ -49,8 +49,13 @@ async def get_saved_token(db: AsyncSession = Depends(get_db)) -> dict:
         
     try:
         decrypted_token = crypto_manager.decrypt(config.value)
+        # Return masked value for security - only show last 4 chars
+        if len(decrypted_token) > 4:
+            masked = "*" * (len(decrypted_token) - 4) + decrypted_token[-4:]
+        else:
+            masked = "*" * len(decrypted_token)
         return {
-            "token": decrypted_token,
+            "token": masked,
             "source": "db",
             "isActive": True
         }
@@ -212,6 +217,15 @@ async def download_asset(
     db: AsyncSession = Depends(get_db),
 ) -> dict:
     """Download an asset file to local storage."""
+    # SSRF Protection: Validate URL before any network request
+    try:
+        validate_download_url(data.url)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    
     token = await get_token_only(db, data.token)
 
     # Get download path
