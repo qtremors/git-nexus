@@ -2,7 +2,7 @@
 
 Native GitHub and Git tools built with Rust and GPUI.
 
-Version 0.1.7.
+Version 0.1.8.
 
 ## Development
 

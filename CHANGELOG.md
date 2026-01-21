@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.7
+> **Version:** 0.1.8
 > **Last Updated:** 2026-01-21
 
 ---
+
+## [0.1.8] - 2026-01-21
+
+- Added the Watchtower grid and list, tracked-version actions, source archives and asset-download feedback.
 
 ## [0.1.7] - 2026-01-21
 
