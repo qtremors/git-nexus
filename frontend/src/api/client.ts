@@ -159,7 +159,9 @@ export async function addToWatchlist(url: string): Promise<{ message: string; su
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
     });
-    return handleResponse<{ message: string; success: boolean }>(res);
+    const data = await handleResponse<{ message: string }>(res);
+    // Backend returns { message } only; synthesize success from response status
+    return { ...data, success: res.ok };
 }
 
 export async function removeFromWatchlist(id: number): Promise<{ message: string }> {

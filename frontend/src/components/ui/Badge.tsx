@@ -24,16 +24,28 @@ const colorClasses = {
 };
 
 export function Badge({ children, color = 'blue', className = '', onClick }: BadgeProps) {
-    return (
-        <span
-            onClick={onClick}
-            className={`
+    const baseClasses = `
         px-2.5 py-0.5 rounded-full text-xs font-medium border
         ${colorClasses[color]}
         ${onClick ? 'cursor-pointer hover:opacity-80' : ''}
         ${className}
-      `}
-        >
+    `;
+
+    // Use button for interactive badges (better accessibility)
+    if (onClick) {
+        return (
+            <button
+                type="button"
+                onClick={onClick}
+                className={baseClasses}
+            >
+                {children}
+            </button>
+        );
+    }
+
+    return (
+        <span className={baseClasses}>
             {children}
         </span>
     );

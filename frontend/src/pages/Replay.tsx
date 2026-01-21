@@ -238,7 +238,6 @@ export default function Replay() {
 
         try {
             await deleteReplayRepo(repoToDelete.id);
-            await deleteReplayRepo(repoToDelete.id);
             addLog(`Repository removed: ${repoToDelete.name}`, 'success');
             showToast('Repository removed', 'neutral');
         } catch (e: any) {

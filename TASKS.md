@@ -135,15 +135,15 @@
 
 | ID | File | Issue | Action |
 |----|------|-------|--------|
-| CR-FE-1 | `api/client.ts:156-163` | `addToWatchlist` expects `{ success }` but backend returns `{ message }` | Synthesize `success` from `res.ok` or presence of `message` |
-| CR-FE-2 | `components/discovery/RepoList.tsx` | Render-time state updates from `fetchContributions()` | Wrap in `useCallback` + `useEffect`, remove render-time call |
-| CR-FE-3 | `components/replay/EnvManager.tsx:63-81` | `handleSave` proceeds without required identifiers | Add guards for `repoId`/`commitHash` based on scope, early return with toast |
-| CR-FE-4 | `components/replay/FileTree.tsx:31-41` | Tree row not keyboard-accessible | Add `role="button"`, `tabIndex={0}`, `aria-expanded`, `onKeyDown` handler |
-| CR-FE-5 | `components/replay/ServerList.tsx:42-45` | `window.open` leaves `opener` exposed | Use `window.open(url, '_blank', 'noopener,noreferrer')` |
-| CR-FE-6 | `components/ui/Badge.tsx:26-35` | Interactive `<span>` with `onClick` | Render `<button>` when `onClick` is provided |
-| CR-FE-7 | `pages/Discovery.tsx:101-161` | `fetchCommitCounts` can overwrite newer results | Pass query param, verify match before `setDiscoveryState` |
-| CR-FE-8 | `pages/Replay.tsx:236-250` | `confirmDeleteRepo` calls `deleteReplayRepo` twice | Remove duplicate call |
-| CR-FE-9 | `pages/Watchlist.tsx:447-454` | Download button triggers parent card navigation | Add `e.stopPropagation()` before `handleDownloadAsset` |
+| ~~CR-FE-1~~ | ~~`api/client.ts:156-163`~~ | ~~`addToWatchlist` expects `{ success }` but backend returns `{ message }`~~ | ✅ Synthesized `success` from `res.ok` |
+| ~~CR-FE-2~~ | ~~`components/discovery/RepoList.tsx`~~ | ~~Render-time state updates from `fetchContributions()`~~ | ✅ Wrapped in `useCallback` + `useEffect` |
+| ~~CR-FE-3~~ | ~~`components/replay/EnvManager.tsx:63-81`~~ | ~~`handleSave` proceeds without required identifiers~~ | ✅ Added guards with early return + toast |
+| ~~CR-FE-4~~ | ~~`components/replay/FileTree.tsx:31-41`~~ | ~~Tree row not keyboard-accessible~~ | ✅ Added `role`, `tabIndex`, `aria-expanded`, `onKeyDown` |
+| ~~CR-FE-5~~ | ~~`components/replay/ServerList.tsx:42-45`~~ | ~~`window.open` leaves `opener` exposed~~ | ✅ Used `noopener,noreferrer` |
+| ~~CR-FE-6~~ | ~~`components/ui/Badge.tsx:26-35`~~ | ~~Interactive `<span>` with `onClick`~~ | ✅ Renders `<button>` when `onClick` provided |
+| ~~CR-FE-7~~ | ~~`pages/Discovery.tsx:101-161`~~ | ~~`fetchCommitCounts` can overwrite newer results~~ | ✅ Verify query match before updating state |
+| ~~CR-FE-8~~ | ~~`pages/Replay.tsx:236-250`~~ | ~~`confirmDeleteRepo` calls `deleteReplayRepo` twice~~ | ✅ Removed duplicate call |
+| ~~CR-FE-9~~ | ~~`pages/Watchlist.tsx:447-454`~~ | ~~Download button triggers parent card navigation~~ | ✅ Added `e.stopPropagation()` |
 
 ---
 
@@ -159,8 +159,8 @@
 | 📝 Documentation | 4 | 0 |
 | 🛡️ Security (Low) | 3 | 0 |
 | 🐰 CodeRabbit (BE) | 11 | 0 |
-| 🐰 CodeRabbit (FE) | 9 | 0 |
-| **Total** | **41** | **14** |
+| 🐰 CodeRabbit (FE) | 0 | 9 |
+| **Total** | **32** | **23** |
 
 ---
 
