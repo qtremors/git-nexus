@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.4
+> **Version:** 0.1.5
 > **Last Updated:** 2026-01-21
 
 ---
+
+## [0.1.5] - 2026-01-21
+
+- Added profile discovery, repository filtering and sorting, language and topic controls, and selected downloads.
 
 ## [0.1.4] - 2026-01-21
 
