@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.6
+> **Version:** 0.1.7
 > **Last Updated:** 2026-01-21
 
 ---
+
+## [0.1.7] - 2026-01-21
+
+- Added repository README viewing, continuous commit history and literal commit-message details.
 
 ## [0.1.6] - 2026-01-21
 
