@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     # Application
     app_name: str = "GitNexus"
-    app_version: str = "3.1.0"
+    app_version: str = "3.0.1"
     debug: bool = False
 
     # Database
