@@ -40,6 +40,16 @@
 - **CR-FE-2**: Fixed render-time state updates with `useCallback` + `useEffect`
 - **CR-FE-3**: Added guards for missing identifiers in EnvManager
 
+### 🚀 Improvements
+
+- **ARCH-5**: Added 8 database indexes for faster queries
+  - `Repository.name`, `Commit.date`, `Commit.repo_id+hash` composite
+  - `EnvVar.scope`, `EnvVar.repository_id`, `EnvVar.commit_hash`, `scope+repo` composite
+  - `TrackedRepo.owner`, `TrackedRepo.repo_name`
+- **ARCH-6**: Configured connection pool with `StaticPool` and 30s timeout
+- **CQ-9**: Added theme validation with regex pattern
+- **DOC-2**: Added OpenAPI examples to all request/response schemas
+
 ### 🧪 Testing
 
 - Added **49 backend tests** (pytest + pytest-asyncio)

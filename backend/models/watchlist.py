@@ -13,8 +13,8 @@ class TrackedRepo(Base):
     __tablename__ = "tracked_repos"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    owner: Mapped[str] = mapped_column(String(80), nullable=False)
-    repo_name: Mapped[str] = mapped_column(String(80), nullable=False)
+    owner: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    repo_name: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
 
     # Version tracking
     current_version: Mapped[str] = mapped_column(String(50), default=RepoStatus.UNKNOWN)
