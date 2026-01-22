@@ -734,7 +734,140 @@ impl Nexus {
             .child(main)
             .into_any_element()
     }
-    fn release_detail(&self, _: &str, _: &str, _: &mut Window, cx: &mut Context<Self>) -> AnyElement {
-        card(cx).child("Release history is not available in this version.").into_any_element()
+    fn release_detail(
+        &self,
+        owner: &str,
+        name: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> AnyElement {
+        let tracked = self
+            .snapshot
+            .watchlist
+            .iter()
+            .find(|r| r.owner == owner && r.name == name);
+        let mut page = div()
+            .max_w(px(1152.))
+            .w_full()
+            .mx_auto()
+            .p_6()
+            .flex()
+            .flex_col()
+            .gap_6()
+            .child(
+                self.action("back-watchlist", "Back to Watchtower", cx, |v, _, cx| {
+                    v.release_repo = None;
+                    v.navigation_generation += 1;
+                    v.downloaded_assets.clear();
+                    cx.notify();
+                })
+                .icon(icon("arrow-left"))
+                .ghost(),
+            )
+            .child(
+                div()
+                    .text_3xl()
+                    .line_height(px(36.))
+                    .font_weight(FontWeight::BOLD)
+                    .child(name.to_string()),
+            )
+            .child(muted(cx, format!("Release history for {owner}/{name}")));
+        if let Some(repo) = tracked {
+            let id = repo.id;
+            page = page.child(
+                self.action("mark-current", "Mark Current", cx, move |v, _, cx| {
+                    v.run(Job::MarkCurrent(id), cx)
+                })
+                .ghost(),
+            );
+            let key = format!("{owner}/{name}");
+            let loading = self.working(&format!("releases:{key}"));
+            if let Some(error) = self.release_errors.get(&key) {
+                let owner = owner.to_string();
+                let name = name.to_string();
+                page = page.child(
+                    card(cx)
+                        .child(div().text_color(rgb(0xf87171)).child(error.clone()))
+                        .child(
+                            self.action(
+                                "retry-release-history",
+                                "Try again",
+                                cx,
+                                move |v, _, cx| {
+                                    v.run(Job::Releases(owner.clone(), name.clone(), true), cx);
+                                },
+                            )
+                            .outline()
+                            .disabled(loading),
+                        ),
+                );
+            } else if self.releases.is_empty() {
+                page = page.child(card(cx).p_12().text_center().child(muted(
+                    cx,
+                    if loading {
+                        "Loading releases…"
+                    } else {
+                        "No releases found for this repository."
+                    },
+                )));
+            }
+            for release in &self.releases {
+                let url = release.html_url.clone();
+                let mut section = card(cx)
+                    .child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .gap_3()
+                            .child(heading(release.tag_name.clone()))
+                            .when(release.prerelease, |this| {
+                                this.child(muted(cx, "PRE-RELEASE").text_xs().line_height(px(16.)))
+                            })
+                            .child(div().flex_1())
+                            .child(muted(
+                                cx,
+                                release
+                                    .published_at
+                                    .as_deref()
+                                    .unwrap_or("")
+                                    .get(..10)
+                                    .unwrap_or("")
+                                    .to_string(),
+                            ))
+                            .child(
+                                self.action(
+                                    ("release-link", release.id),
+                                    "GitHub",
+                                    cx,
+                                    move |_, _, cx| cx.open_url(&url),
+                                )
+                                .icon(icon("github"))
+                                .ghost(),
+                            ),
+                    )
+                    .child(
+                        markdown(
+                            SharedString::from(format!("release-body:{}", release.id)),
+                            release.body.clone().unwrap_or_default(),
+                            window,
+                            cx,
+                        )
+                        .w_full()
+                        .h_auto()
+                        .flex_shrink_0()
+                        .selectable(true),
+                    );
+                let assets = release.display_assets();
+                for asset in &assets {
+                    section = section.child(self.asset_row(repo, release, asset, true, cx));
+                }
+                if assets.is_empty() {
+                    section =
+                        section.child(muted(cx, "No assets available for this release.").py_4());
+                }
+                page = page.child(section);
+            }
+        }
+        page.into_any_element()
     }
 }

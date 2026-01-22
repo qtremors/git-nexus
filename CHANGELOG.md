@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.8
-> **Last Updated:** 2026-01-21
+> **Version:** 0.1.9
+> **Last Updated:** 2026-01-22
 
 ---
+
+## [0.1.9] - 2026-01-22
+
+- Added release-history browsing, notes, prereleases and detailed asset lists.
 
 ## [0.1.8] - 2026-01-21
 
