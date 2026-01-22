@@ -445,7 +445,7 @@ export default function Watchlist() {
                                                 </div>
                                             </div>
                                             <button
-                                                onClick={() => handleDownloadAsset(repo.id, asset, repo.name)}
+                                                onClick={(e) => { e.stopPropagation(); handleDownloadAsset(repo.id, asset, repo.name); }}
                                                 disabled={isDownloading}
                                                 className="p-2 text-brand-primary hover:text-white hover:bg-brand-primary rounded-md transition-colors disabled:opacity-50"
                                             >

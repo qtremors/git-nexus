@@ -1,8 +1,65 @@
 # GitNexus - Changelog
 
 > **Project:** GitNexus
-> **Version:** 3.0.0
-> **Last Updated:** 2026-01-20
+> **Version:** 3.0.1
+> **Last Updated:** 2026-01-21
+
+---
+
+## [3.0.1] - 2026-01-21
+
+### 🔒 Security
+
+- **CR-BE-5**: Added SSRF protection with URL validation for downloads (allowlist, private IP blocking)
+- **CR-BE-6**: Token endpoint now returns masked values (last 4 chars only)
+- **CR-BE-10**: Replaced secret-looking test literals with neutral placeholders
+- **CR-BE-11**: Improved path containment checks using `Path.is_relative_to()`
+- **CR-FE-5**: Added `noopener,noreferrer` to `window.open` calls
+
+### 🐛 Bug Fixes
+
+- **CR-BE-4**: Removed hard-coded 10,000 commit limit in replay sync
+- **CR-BE-7**: Fixed ORM mutation in concurrent tasks (sequential after gather)
+- **CR-BE-8**: Replaced `commit()` with `flush()` in rate limit updates, added `rollback()`
+- **CR-BE-9**: Fixed error payload handling in `fetch_recent_commits`
+- **CR-FE-1**: Fixed `addToWatchlist` success detection (synthesize from `res.ok`)
+- **CR-FE-7**: Prevented stale data overwrites in Discovery page
+- **CR-FE-8**: Removed duplicate `deleteReplayRepo` call
+- **CR-FE-9**: Added `stopPropagation()` to download button clicks
+
+### ♿ Accessibility
+
+- **CR-FE-4**: Added keyboard accessibility to FileTree component
+- **CR-FE-6**: Badge renders as `<button>` when interactive
+
+### 🏗️ Architecture
+
+- **CR-BE-1**: Updated to Pydantic v2 `model_config` pattern
+- **CR-BE-2**: Added `UniqueConstraint` to CacheEntry model
+- **CR-BE-3**: Replaced redundant constraint with composite Index on commits
+- **CR-FE-2**: Fixed render-time state updates with `useCallback` + `useEffect`
+- **CR-FE-3**: Added guards for missing identifiers in EnvManager
+
+### 🚀 Improvements
+
+- **ARCH-5**: Added 8 database indexes for faster queries
+  - `Repository.name`, `Commit.date`, `Commit.repo_id+hash` composite
+  - `EnvVar.scope`, `EnvVar.repository_id`, `EnvVar.commit_hash`, `scope+repo` composite
+  - `TrackedRepo.owner`, `TrackedRepo.repo_name`
+- **ARCH-6**: Configured connection pool with `StaticPool` and 30s timeout
+- **CQ-9**: Added theme validation with regex pattern
+- **DOC-2**: Added OpenAPI examples to all request/response schemas
+
+### 🧪 Testing
+
+- Added **49 backend tests** (pytest + pytest-asyncio)
+  - API endpoint tests (health, settings, watchlist, replay)
+  - Service layer tests (workspace, git, cache)
+  - Security tests (encryption, sanitization, SSRF)
+- Added **20 frontend tests** (Vitest + React Testing Library)
+  - Badge component tests
+  - Modal component tests
+  - Toast component tests
 
 ---
 

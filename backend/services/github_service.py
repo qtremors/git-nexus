@@ -57,8 +57,11 @@ class GitHubService:
             else:
                 db.add(ApiStatus(limit=limit, remaining=remaining, reset_time=reset, token_source=new_source))
             
-            await db.commit()
+            # Use flush instead of commit to avoid independent transaction commits
+            await db.flush()
         except Exception as e:
+            # Rollback to maintain transaction integrity
+            await db.rollback()
             # Don't fail request if stats update fails
             logger.debug(f"Rate limit update failed: {e}")
 
@@ -235,16 +238,17 @@ class GitHubService:
                 db=db
             )
             
-            if not commits or (isinstance(commits, dict) and "error" in commits):
-                # Error encountered or empty
-                if not all_commits and isinstance(commits, list) and len(commits) > 0 and "error" in commits[0]:
-                     return commits # Return the error
-                break
-                
+            # Detect error payload immediately and return it
             if isinstance(commits, list) and commits and "error" in commits[0]:
-                 break
+                # Return error on first page, break on subsequent pages
+                if not all_commits:
+                    return commits
+                break
+            
+            if not commits:
+                break
                  
-            # Filter valid commits just in case
+            # Filter valid commits
             valid_batch = [c for c in commits if isinstance(c, dict) and "sha" in c]
             if not valid_batch:
                 break

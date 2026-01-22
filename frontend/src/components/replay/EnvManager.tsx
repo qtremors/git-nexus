@@ -61,6 +61,16 @@ export function EnvManager({ isOpen, onClose, scope, repoId, commitHash, title }
     };
 
     const handleSave = async () => {
+        // Guard: validate required identifiers based on scope
+        if (scope === 'project' && !repoId) {
+            showToast('Cannot save: project ID is missing', 'error');
+            return;
+        }
+        if (scope === 'commit' && (!repoId || !commitHash)) {
+            showToast('Cannot save: repository or commit information is missing', 'error');
+            return;
+        }
+
         setSaving(true);
         try {
             // Filter out empty keys

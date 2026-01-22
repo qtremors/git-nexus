@@ -33,6 +33,15 @@ function TreeItem({ node, depth }: TreeItemProps) {
                 className={`tree-item__row ${node.type}`}
                 style={{ paddingLeft: `${depth * 16 + 8}px` }}
                 onClick={toggleExpand}
+                role="button"
+                tabIndex={0}
+                aria-expanded={node.type === 'directory' ? isExpanded : undefined}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleExpand();
+                    }
+                }}
             >
                 <span className={`material-symbols-outlined tree-item__icon ${node.type}`}>
                     {icon}

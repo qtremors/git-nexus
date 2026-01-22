@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-3.0.0-blue?style=flat&logo=git" alt="Version">
+  <img src="https://img.shields.io/badge/Version-3.0.1-blue?style=flat&logo=git" alt="Version">
   <img src="https://img.shields.io/badge/Python-3.11+-blue?logo=python" alt="Python">
   <img src="https://img.shields.io/badge/React-19-61dafb?logo=react" alt="React">
   <img src="https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi" alt="FastAPI">
@@ -141,6 +141,10 @@ git-nexus/
 # Backend Tests
 cd backend
 uv run pytest
+
+# Frontend Tests
+cd frontend
+npm run test:run
 
 # Frontend Build Check
 cd frontend

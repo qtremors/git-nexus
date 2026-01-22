@@ -142,8 +142,11 @@ export default function Discovery() {
         repoList: Repository[],
         profile: UserProfile,
         readme: string | null,
-        refresh = false
+        refresh = false,
+        currentQuery?: string
     ) => {
+        // Capture the query at call time to verify later
+        const queryAtCallTime = currentQuery || discoverySearchQuery;
         const updates = [...repoList];
         await Promise.allSettled(
             updates.map(async (repo, index) => {
@@ -155,8 +158,10 @@ export default function Discovery() {
                 }
             })
         );
-        // Note: we use queryParam or discoverySearchQuery here
-        setDiscoveryState(discoverySearchQuery, profile, updates, readme);
+        // Verify the query hasn't changed before updating state to prevent stale overwrites
+        if (queryAtCallTime === discoverySearchQuery) {
+            setDiscoveryState(discoverySearchQuery, profile, updates, readme);
+        }
         setLoading(false);
     };
 

@@ -161,33 +161,46 @@ async def check_updates(
     result = await db.execute(select(TrackedRepo))
     repos = result.scalars().all()
     
-    updates_found = 0
     concurrency_limit = asyncio.Semaphore(5)
 
-    async def _check_repo_update(repo: TrackedRepo) -> bool:
+    async def _check_repo_update(repo_id: int, owner: str, repo_name: str, current_version: str, latest_version: str | None) -> dict:
+        """Fetch update info without mutating ORM. Returns update data."""
         async with concurrency_limit:
-            # Create a dedicated session for the API tracking to avoid concurrency issues with shared session
+            # Create a dedicated session for the API tracking to avoid concurrency issues
             async with async_session() as api_session:
                 release_data = await github_service.fetch_latest_release(
-                    repo.owner, repo.repo_name, token, db=api_session
+                    owner, repo_name, token, db=api_session
                 )
         
-        updated = False
         if release_data:
             tag_name = release_data.get("tag_name", RepoStatus.UNKNOWN)
-            if repo.latest_version != tag_name:
-                repo.latest_version = tag_name
-                updated = True
-            if repo.current_version == RepoStatus.NOT_CHECKED:
-                repo.current_version = tag_name
-            repo.last_checked = datetime.now(timezone.utc)
-        return updated
+            return {
+                "repo_id": repo_id,
+                "new_latest": tag_name,
+                "updated": latest_version != tag_name,
+                "set_current": current_version == RepoStatus.NOT_CHECKED,
+            }
+        return {"repo_id": repo_id, "updated": False}
 
-    # Run checks in parallel
-    tasks = [_check_repo_update(repo) for repo in repos]
+    # Run checks in parallel - tasks return data, don't mutate ORM
+    tasks = [
+        _check_repo_update(r.id, r.owner, r.repo_name, r.current_version, r.latest_version)
+        for r in repos
+    ]
     results = await asyncio.gather(*tasks)
     
-    updates_found = sum(results)
+    # Apply mutations sequentially after all async work is done
+    updates_found = 0
+    repo_map = {r.id: r for r in repos}
+    for update_info in results:
+        repo = repo_map.get(update_info["repo_id"])
+        if repo and update_info.get("new_latest"):
+            if update_info.get("updated"):
+                repo.latest_version = update_info["new_latest"]
+                updates_found += 1
+            if update_info.get("set_current"):
+                repo.current_version = update_info["new_latest"]
+            repo.last_checked = datetime.now(timezone.utc)
     
     await db.commit()
     return {"updates_found": updates_found, "message": "Check complete"}

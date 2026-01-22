@@ -2,7 +2,7 @@
 
 > Comprehensive documentation for developers working on GitNexus.
 
-**Version:** 3.0.0 | **Last Updated:** 2026-01-20
+**Version:** 3.0.1 | **Last Updated:** 2026-01-21
 
 ---
 
@@ -238,7 +238,7 @@ Create `backend/.env` (optional but recommended):
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `APP_NAME` | `GitNexus` | Application name |
-| `APP_VERSION` | `3.0.0` | Application version |
+| `APP_VERSION` | `3.0.1` | Application version |
 | `DEBUG` | `false` | Enable debug mode |
 | `FERNET_KEY` | (generated) | Encryption key for secrets |
 | `DATABASE_URL` | `sqlite+aiosqlite:///./data/gitnexus.db` | Database path |
@@ -282,8 +282,9 @@ uv run pytest
 
 ```bash
 cd frontend
-npm run build  # Type-check + build
-npm run lint   # ESLint check
+npm run test:run  # Unit tests (Vitest)
+npm run build     # Type-check + build
+npm run lint      # ESLint check
 ```
 
 ---

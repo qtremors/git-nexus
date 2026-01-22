@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     # Application
     app_name: str = "GitNexus"
-    app_version: str = "3.1.0"
+    app_version: str = "3.0.1"
     debug: bool = False
 
     # Database
@@ -32,10 +32,12 @@ class Settings(BaseSettings):
     # Replay Server
     base_server_port: int = 9000
 
-    class Config:
-        env_file = Path(__file__).parent.parent / ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    # Configuration
+    model_config = SettingsConfigDict(
+        env_file=Path(__file__).parent.parent / ".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 settings = Settings()

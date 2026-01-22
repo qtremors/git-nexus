@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Star, GitFork, CheckCircle, Layers, Code, Search, ArrowUp, ArrowDown, Calendar, Clock, GitCommit, Download, ExternalLink } from 'lucide-react';
 import type { Repository } from '../../api/client';
@@ -63,7 +63,7 @@ export function RepoList({ repos, profileReadme, downloadCart, onToggleCartItem,
     }, []);
 
     // Fetch contributions logic
-    const fetchContributions = async (forceRefresh = false) => {
+    const fetchContributions = useCallback(async (forceRefresh = false) => {
         if ((contributionsFetched && !forceRefresh) || repos.length === 0) return;
         setContributionLoading(true);
 
@@ -129,12 +129,14 @@ export function RepoList({ repos, profileReadme, downloadCart, onToggleCartItem,
             setContributionLoading(false);
             setContributionsFetched(true);
         }
-    };
+    }, [repos, contributionsFetched]);
 
-    // Trigger fetch on tab switch
-    if (activeTab === 'overview' && !contributionsFetched && !contributionLoading) {
-        fetchContributions();
-    }
+    // Trigger fetch on tab switch via useEffect (fixes render-time state update)
+    useEffect(() => {
+        if (activeTab === 'overview' && !contributionsFetched && !contributionLoading) {
+            fetchContributions();
+        }
+    }, [activeTab, contributionsFetched, contributionLoading, fetchContributions]);
 
 
     // Extract unique languages for Chips

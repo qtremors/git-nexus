@@ -271,7 +271,8 @@ async def get_commits(
 
 async def sync_repo_commits(db: AsyncSession, repo: Repository) -> None:
     """Sync all commits from git to database with sequential numbering (batch optimized)."""
-    git_commits = await git_service.get_commits(repo.path, limit=10000)
+    # No artificial limit - fetch all commits from git history
+    git_commits = await git_service.get_commits(repo.path)
     
     # Commits come in reverse chronological order (newest first)
     git_commits.reverse()

@@ -41,7 +41,7 @@ export function ServerList() {
                         <div className="server-card__actions">
                             <button
                                 className="btn btn-secondary btn-sm"
-                                onClick={() => window.open(server.url, '_blank')}
+                                onClick={() => window.open(server.url, '_blank', 'noopener,noreferrer')}
                             >
                                 Open
                             </button>
