@@ -1,6 +1,6 @@
 # GitNexus - Developer Documentation
 
-**Version:** 0.1.9 | **Last Updated:** 2026-01-22
+**Version:** 0.2.0 | **Last Updated:** 2026-02-17
 
 The `git-nexus-app/` Cargo workspace separates `crates/core/` from `crates/desktop/`. Core owns data and repository services. Desktop owns the GPUI interface. Dependencies with required local patches are retained under `vendor/` with their licenses.
 

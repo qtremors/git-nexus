@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.1.9
-> **Last Updated:** 2026-01-22
+> **Version:** 0.2.0
+> **Last Updated:** 2026-02-17
 
 ---
+
+## [0.2.0] - 2026-02-17
+
+- Added the Replay workspace, continuous history, file tree, previews and snapshot server controls.
 
 ## [0.1.9] - 2026-01-22
 
