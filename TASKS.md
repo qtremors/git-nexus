@@ -6,6 +6,19 @@
 
 ---
 
+## 🟠 CodeRabbit Review (Immediate Action)
+
+| ID | Task | File | Status |
+|----|------|------|--------|
+| CR-1 | Add `UniqueConstraint` (`username`, `endpoint_type`) to `cache_entries` via Alembic | `backend/models/cache.py` | Pending |
+| CR-2 | Ensure `repo.last_checked` is always updated in watchlist loop | `backend/routers/watchlist.py` | Pending |
+| CR-3 | Remove custom `event_loop` fixture to fix scope mismatch | `backend/tests/conftest.py` | Pending |
+| CR-4 | Assert success of first POST before testing duplicate in `test_api.py` | `backend/tests/test_api.py` | Pending |
+| CR-5 | Replace ineffective `urlparse` try/except with explicit validation | `backend/utils/security.py` | Pending |
+| CR-6 | Make Modal close button test deterministic (remove conditional) | `frontend/src/components/__tests__/Modal.test.tsx` | Pending |
+| CR-7 | Use `data-testid` for Modal backdrop test | `frontend/src/components/__tests__/Modal.test.tsx` | Pending |
+| CR-8 | Make Toast dismiss button test deterministic (remove conditional) | `frontend/src/components/__tests__/Toast.test.tsx` | Pending |
+
 ## 🟡 MEDIUM Priority
 
 ### Architecture

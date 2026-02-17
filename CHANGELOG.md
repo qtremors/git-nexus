@@ -1,8 +1,16 @@
 # GitNexus - Changelog
 
 > **Project:** GitNexus
-> **Version:** 3.0.1
-> **Last Updated:** 2026-01-21
+> **Version:** 3.0.2
+> **Last Updated:** 2026-02-17
+
+---
+
+## [3.0.2] - 2026-02-17
+
+### 🐛 Bug Fixes
+
+- **DISCOVERY**: Fixed commit fetching in repo detail view by increasing Pydantic `per_page` limit to 1000, matching frontend requirements.
 
 ---
 
