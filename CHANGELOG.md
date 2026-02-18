@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.2.0
-> **Last Updated:** 2026-02-17
+> **Version:** 0.2.1
+> **Last Updated:** 2026-02-18
 
 ---
+
+## [0.2.1] - 2026-02-18
+
+- Added scoped environment editors, masked values and merged viewing that preserves unsaved drafts.
 
 ## [0.2.0] - 2026-02-17
 
