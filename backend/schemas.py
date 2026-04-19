@@ -54,7 +54,7 @@ class RepoCommitsRequest(BaseModel):
     token: str | None = None
     since: str | None = Field(default=None, examples=["2024-01-01T00:00:00Z"])
     page: int = Field(default=1, ge=1)
-    per_page: int = Field(default=30, ge=1, le=100)
+    per_page: int = Field(default=30, ge=1, le=1000)
 
 
 class RepoItem(BaseModel):
