@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.2.1
-> **Last Updated:** 2026-02-18
+> **Version:** 0.2.2
+> **Last Updated:** 2026-04-19
 
 ---
+
+## [0.2.2] - 2026-04-19
+
+- Added token and quota controls, download preferences, themes, environment access and cache/log tools.
 
 ## [0.2.1] - 2026-02-18
 
