@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.2.2
+> **Version:** 0.2.3
 > **Last Updated:** 2026-04-19
 
 ---
+
+## [0.2.3] - 2026-04-19
+
+- Added a separate HTTPS media client with request bounds that does not receive the GitHub token.
 
 ## [0.2.2] - 2026-04-19
 

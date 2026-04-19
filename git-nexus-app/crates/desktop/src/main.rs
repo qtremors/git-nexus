@@ -1,6 +1,7 @@
 mod assets;
 mod history;
 mod jobs;
+mod media;
 mod service;
 mod theme;
 mod ui;
@@ -79,6 +80,7 @@ fn run() -> Result<()> {
     let services = Arc::new(Mutex::new(services));
     Application::new()
         .with_assets(assets::Assets)
+        .with_http_client(Arc::new(media::MediaClient::new()?))
         .run(move |cx: &mut App| {
             gpui_component::init(cx);
             Theme::change(ThemeMode::Dark, None, cx);
