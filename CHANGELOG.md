@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.2.3
+> **Version:** 0.2.4
 > **Last Updated:** 2026-04-19
 
 ---
+
+## [0.2.4] - 2026-04-19
+
+- Added versioned Windows icon resources and local portable ZIP packaging with checksums and dependency notices.
 
 ## [0.2.3] - 2026-04-19
 
