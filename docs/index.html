@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitNexus | Your GitHub Command Center</title>
+    <meta name="description" content="A powerful, self-hosted dashboard that bridges the gap between the cloud and your local machine.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/git-nexus.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&family=Fira+Code&display=swap" rel="stylesheet">
+    
+    <!-- Frameworks -->
+    <script src="https://cdn.tailwindcss.com?version=3.4.1"></script>
+    <script src="https://unpkg.com/lucide@0.344.0"></script>
+    
+    <link rel="stylesheet" href="index.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'nexus-bg': '#05070a',
+                        'nexus-primary': '#00d2ff',
+                        'nexus-secondary': '#9d50bb',
+                        'nexus-glass': 'rgba(255, 255, 255, 0.03)',
+                        'nexus-border': 'rgba(255, 255, 255, 0.1)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-nexus-bg text-white antialiased overflow-x-hidden">
+
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 backdrop-blur-md border-b border-nexus-border transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="../assets/git-nexus.png" alt="GitNexus Logo" class="w-10 h-10 object-contain">
+                <span class="text-xl font-black tracking-tighter bg-gradient-to-r from-nexus-primary to-nexus-secondary bg-clip-text text-transparent">GitNexus</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Features</a>
+                <a href="demo/demo.html" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Live Demo</a>
+                <a href="../DEVELOPMENT.md" class="text-sm font-medium text-gray-400 hover:text-white transition-colors">Docs</a>
+                <a href="https://github.com/qtremors/git-nexus" target="_blank" class="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
+                    <i data-lucide="github" class="w-4 h-4"></i>
+                    Source
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="relative pt-40 pb-20 lg:h-screen flex items-center px-6 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row items-center gap-16 w-full">
+            <div class="flex-1 text-center lg:text-left space-y-8 reveal">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-nexus-primary/10 text-nexus-primary text-xs font-bold tracking-widest uppercase">
+                    v3.0.2 Command Center
+                </div>
+                <h1 class="text-6xl lg:text-8xl font-black tracking-tight leading-[0.9]">
+                    Command Your <br/>
+                    <span class="text-gray-500">GitHub</span> Universe.
+                </h1>
+                <p class="text-xl text-gray-400 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+                    A powerful, self-hosted dashboard that bridges the gap between cloud and local development. 
+                    Manage your repos, track releases, and replay code history.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
+                    <a href="#quickstart" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-black font-bold hover:scale-105 transition-transform text-center">
+                        Get Started
+                    </a>
+                    <a href="demo/demo.html" class="w-full sm:w-auto px-8 py-4 rounded-full bg-white/5 border border-white/10 font-bold hover:bg-white/10 transition-colors text-center">
+                        Live Demo
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Terminal Mockup (Visual Component) -->
+            <div class="flex-1 w-full reveal delay-200">
+                <div class="bg-nexus-bg border border-nexus-border rounded-xl shadow-2xl overflow-hidden">
+                    <div class="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-nexus-border">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
+                        <span class="ml-4 text-[10px] text-gray-500 font-mono">git-nexus --status</span>
+                    </div>
+                    <div class="p-6 font-mono text-sm space-y-2">
+                        <p class="text-nexus-primary">➜ nexus --version</p>
+                        <p class="text-gray-400">GitNexus v3.0.2 (Local-First)</p>
+                        <p class="text-nexus-primary">➜ nexus --check-watchlist</p>
+                        <p class="text-green-400">✓ Found 12 new releases</p>
+                        <p class="text-nexus-primary">➜ nexus --spin-up replay/main</p>
+                        <p class="text-yellow-400">⚡ Isolated server starting at :8080...</p>
+                        <div class="mt-4 pt-4 border-t border-white/5 flex gap-4 text-[10px] text-gray-600">
+                            <span>UPTIME: 12d 4h</span>
+                            <span>CPU: 0.2%</span>
+                            <span>RAM: 42MB</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features Section (Typographic Layout) -->
+    <section id="features" class="py-32 px-6 max-w-7xl mx-auto space-y-32">
+        
+        <div class="flex flex-col lg:flex-row gap-16 items-start reveal">
+            <div class="lg:w-1/3">
+                <span class="text-nexus-primary font-mono font-bold tracking-widest uppercase text-xs">01 Discovery</span>
+            </div>
+            <div class="flex-1 space-y-6">
+                <h2 class="text-4xl lg:text-6xl font-black tracking-tight">Discovery Engine.</h2>
+                <p class="text-xl text-gray-400 leading-relaxed max-w-2xl">
+                    Deep dive into any GitHub profile. Visualize statistics, filter repositories by language or topic, and download entire projects directly to your machine with zero friction.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-16 items-start reveal">
+            <div class="lg:w-1/3">
+                <span class="text-nexus-secondary font-mono font-bold tracking-widest uppercase text-xs">02 Monitoring</span>
+            </div>
+            <div class="flex-1 space-y-6">
+                <h2 class="text-4xl lg:text-6xl font-black tracking-tight">Asset Watchtower.</h2>
+                <p class="text-xl text-gray-400 leading-relaxed max-w-2xl">
+                    The ultimate monitoring system for your favorite tools. Build custom watchlists, track release assets, and bypass browser limitations with high-speed direct downloads.
+                </p>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-16 items-start reveal">
+            <div class="lg:w-1/3">
+                <span class="text-nexus-primary font-mono font-bold tracking-widest uppercase text-xs">03 Temporal</span>
+            </div>
+            <div class="flex-1 space-y-6">
+                <h2 class="text-4xl lg:text-6xl font-black tracking-tight">Repo Replay.</h2>
+                <p class="text-xl text-gray-400 leading-relaxed max-w-2xl">
+                    Time-travel through code history. Spin up isolated development servers for any commit using Git worktrees—perfect for debugging regressions or demoing historical states.
+                </p>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Quick Start -->
+    <section id="quickstart" class="py-32 px-6 bg-white/[0.02] border-y border-nexus-border">
+        <div class="max-w-4xl mx-auto text-center space-y-12">
+            <h2 class="text-4xl font-black tracking-tight reveal">Ready to launch?</h2>
+            
+            <div class="bg-nexus-bg border border-nexus-border rounded-xl p-8 text-left font-mono text-sm relative reveal shadow-2xl">
+                <div class="absolute top-4 left-6 flex gap-2">
+                    <div class="w-2 h-2 rounded-full bg-white/10"></div>
+                    <div class="w-2 h-2 rounded-full bg-white/10"></div>
+                    <div class="w-2 h-2 rounded-full bg-white/10"></div>
+                </div>
+                <div class="mt-4 space-y-4">
+                    <div>
+                        <p class="text-gray-500 mb-1"># Clone & Setup</p>
+                        <p><span class="text-nexus-primary">git clone</span> https://github.com/qtremors/git-nexus.git</p>
+                        <p><span class="text-nexus-primary">cd</span> git-nexus</p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500 mb-1"># Start Backend</p>
+                        <p><span class="text-nexus-primary">cd</span> backend && <span class="text-nexus-primary">uv sync</span> && <span class="text-nexus-primary">uv run uvicorn</span> main:app</p>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-gray-500 text-sm reveal">Need help? Read the <a href="../DEVELOPMENT.md" class="text-white hover:underline">Full Documentation</a></p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 px-6 border-t border-nexus-border bg-nexus-bg">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="space-y-4 text-center md:text-left">
+                <div class="flex items-center gap-3 justify-center md:justify-start">
+                    <img src="../assets/git-nexus.png" alt="GitNexus Logo" class="w-8 h-8 object-contain">
+                    <span class="font-bold tracking-tight">GitNexus</span>
+                </div>
+                <p class="text-sm text-gray-500 max-w-xs">
+                    Built for developers who want absolute control over their GitHub experience.
+                </p>
+            </div>
+            <div class="flex gap-8 text-sm font-medium text-gray-400">
+                <a href="../DEVELOPMENT.md" class="hover:text-white transition-colors">Development</a>
+                <a href="../CHANGELOG.md" class="hover:text-white transition-colors">Changelog</a>
+                <a href="../LICENSE.md" class="hover:text-white transition-colors">License</a>
+            </div>
+            <div class="text-sm text-gray-600">
+                &copy; 2025 by <a href="https://github.com/qtremors" class="hover:text-white transition-colors">Tremors</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="index.js"></script>
+</body>
+</html>

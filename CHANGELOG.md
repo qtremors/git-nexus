@@ -1,8 +1,18 @@
 # GitNexus - Changelog
 
 > **Project:** GitNexus
-> **Version:** 3.0.2
-> **Last Updated:** 2026-02-17
+> **Version:** 3.0.3
+> **Last Updated:** 2026-04-19
+
+---
+
+## [3.0.3] - 2026-04-19
+
+### Features
+
+- **DOCS**: Launched a premium, typography-driven landing page with Arcile-inspired design.
+- **DOCS**: Added a static RepoNavigator demo for immediate project evaluation.
+- **BRANDING**: Standardized GitNexus logo and favicon across all documentation assets.
 
 ---
 

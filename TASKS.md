@@ -1,8 +1,8 @@
 # GitNexus - Tasks
 
 > **Project:** GitNexus
-> **Version:** 3.0.2
-> **Last Updated:** 2026-02-17
+> **Version:** 3.0.3
+> **Last Updated:** 2026-04-19
 > **Last Audit:** 2026-02-17
 
 ---
