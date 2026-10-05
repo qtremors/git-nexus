@@ -59,6 +59,8 @@ Use --data-dir PATH to choose another data directory. Keep gitnexus.db and secre
 This build is unsigned. See LICENSE.md, PRIVACY.md and THIRD_PARTY_NOTICES.md.
 Project: https://github.com/qtremors/git-nexus
 "@ | Set-Content -LiteralPath (Join-Path $staging 'README.txt') -Encoding UTF8
+        $installer = Join-Path $dist "GitNexus-$version-windows-x64-setup.exe"
+        & (Join-Path $PSScriptRoot 'build-installer.ps1') -PayloadDirectory $staging -Version $version -OutputPath $installer -Compiler $Compiler
         $archive = Join-Path $dist "$packageName.zip"
         $files = Get-ChildItem -LiteralPath $staging -File
         Compress-Archive -LiteralPath $files.FullName -DestinationPath $archive -Force

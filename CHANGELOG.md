@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.2.4
-> **Last Updated:** 2026-04-19
+> **Version:** 0.2.5
+> **Last Updated:** 2026-10-05
 
 ---
+
+## [0.2.5] - 2026-10-05
+
+- Added a per-user Windows setup EXE, shortcuts, retained-data uninstall and the native project website.
 
 ## [0.2.4] - 2026-04-19
 
