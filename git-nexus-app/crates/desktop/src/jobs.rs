@@ -267,3 +267,138 @@ impl JobQueue {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn latest_read_wins_without_dropping_independent_work() {
+        let mut jobs = JobQueue::default();
+        jobs.push_back(Job::Discover("first".into(), false), 0);
+        let first = jobs.pop_ready().unwrap();
+        jobs.push_back(Job::ProfileReadme("first".into(), false), 0);
+        jobs.push_back(Job::Discover("second".into(), false), 0);
+        jobs.push_back(Job::Discover("third".into(), false), 1);
+        assert!(!jobs.is_current(&first));
+        let next = jobs.pop_ready().unwrap();
+        assert!(matches!(&next.job, Job::Discover(name, _) if name == "third"));
+        assert_eq!(next.navigation, 1);
+        assert!(jobs.is_current(&next));
+        assert!(matches!(
+            jobs.pop_ready().unwrap().job,
+            Job::ProfileReadme(..)
+        ));
+        assert!(jobs.pop_ready().is_none());
+    }
+
+    #[test]
+    fn mutations_are_fifo_and_never_coalesced() {
+        let mut jobs = JobQueue::default();
+        jobs.push_back(Job::WatchlistReleases, 0);
+        jobs.push_back(Job::SavePath("first".into()), 0);
+        jobs.push_back(Job::SavePath("second".into()), 0);
+        let first = jobs.pop_ready().unwrap();
+        assert!(matches!(&first.job, Job::SavePath(path) if path == "first"));
+        let background = jobs.pop_ready().unwrap();
+        assert!(matches!(background.job, Job::WatchlistReleases));
+        assert!(jobs.pop_ready().is_none());
+        jobs.finish(&first);
+        let second = jobs.pop_ready().unwrap();
+        assert!(matches!(&second.job, Job::SavePath(path) if path == "second"));
+        jobs.finish(&second);
+        jobs.finish(&background);
+        assert!(jobs.pop_ready().is_none());
+    }
+
+    #[test]
+    fn selecting_another_commit_invalidates_in_flight_files() {
+        let mut jobs = JobQueue::default();
+        let repo = git_nexus_core::models::LocalRepo {
+            id: 1,
+            name: "fixture".into(),
+            path: "unused".into(),
+        };
+        jobs.push_back(Job::Files(repo.clone(), "first".into()), 0);
+        let first = jobs.pop_ready().unwrap();
+        jobs.push_back(Job::Files(repo.clone(), "second".into()), 0);
+        jobs.push_back(Job::Files(repo, "third".into()), 0);
+        assert!(!jobs.is_current(&first));
+        assert!(jobs.pop_ready().is_none());
+        jobs.finish(&first);
+        let next = jobs.pop_ready().unwrap();
+        assert!(jobs.is_current(&next));
+        assert!(matches!(next.job, Job::Files(_, hash) if hash == "third"));
+        assert!(jobs.pop_ready().is_none());
+    }
+
+    #[test]
+    fn network_load_does_not_block_local_actions_or_mutations() {
+        let mut jobs = JobQueue::default();
+        jobs.push_back(Job::ProfileReadme("fixture".into(), false), 0);
+        let background = jobs.pop_ready().unwrap();
+        jobs.push_back(Job::Discover("fixture".into(), false), 0);
+        let discovery = jobs.pop_ready().unwrap();
+        jobs.push_back(Job::Releases("fixture".into(), "project".into(), false), 0);
+        let releases = jobs.pop_ready().unwrap();
+        jobs.push_back(Job::Env("global".into(), 0, String::new()), 0);
+        let environment = jobs.pop_ready().unwrap();
+        assert!(matches!(environment.job, Job::Env(..)));
+        jobs.push_back(Job::SavePath("fixture".into()), 0);
+        let save = jobs.pop_ready().unwrap();
+        assert!(matches!(save.job, Job::SavePath(..)));
+        jobs.push_back(Job::RateLimit, 0);
+        jobs.push_back(Job::ProfileReadme("other".into(), false), 0);
+        jobs.push_back(Job::Load, 0);
+        jobs.push_back(Job::SavePath("second".into()), 0);
+        assert!(jobs.pop_ready().is_none());
+        jobs.finish(&environment);
+        assert!(matches!(jobs.pop_ready().unwrap().job, Job::Load));
+        for request in [background, discovery, releases, save] {
+            jobs.finish(&request);
+        }
+    }
+
+    #[test]
+    fn credential_changes_wait_for_reads_and_keep_mutation_order() {
+        let mut jobs = JobQueue::default();
+        jobs.push_back(Job::Discover("first".into(), false), 0);
+        let first = jobs.pop_ready().unwrap();
+        jobs.push_back(Job::SaveToken("fixture-credential".into()), 0);
+        jobs.push_back(Job::Discover("second".into(), false), 0);
+        jobs.push_back(Job::SavePath("fixture".into()), 0);
+        jobs.push_back(Job::Load, 0);
+        let load = jobs.pop_ready().unwrap();
+        assert!(matches!(load.job, Job::Load));
+        assert!(jobs.working("save-token"));
+        assert!(jobs.pop_ready().is_none());
+        jobs.finish(&first);
+        let token = jobs.pop_ready().unwrap();
+        assert!(matches!(token.job, Job::SaveToken(..)));
+        assert!(jobs.pop_ready().is_none());
+        jobs.finish(&token);
+        assert!(!jobs.working("save-token"));
+        assert!(
+            matches!(jobs.pop_ready().unwrap().job, Job::Discover(name, _) if name == "second")
+        );
+        assert!(matches!(jobs.pop_ready().unwrap().job, Job::SavePath(..)));
+    }
+
+    #[test]
+    fn background_release_load_cannot_cancel_an_explicit_refresh() {
+        let mut jobs = JobQueue::default();
+        jobs.push_back(
+            Job::WatchlistRelease("owner".into(), "project".into(), false),
+            0,
+        );
+        let background = jobs.pop_ready().unwrap();
+        jobs.push_back(Job::Releases("owner".into(), "project".into(), true), 0);
+        let refresh = jobs.pop_ready().unwrap();
+        assert!(!jobs.is_current(&background));
+        jobs.push_back(
+            Job::WatchlistRelease("owner".into(), "project".into(), false),
+            0,
+        );
+        assert!(jobs.is_current(&refresh));
+        assert!(jobs.pop_ready().is_none());
+    }
+}

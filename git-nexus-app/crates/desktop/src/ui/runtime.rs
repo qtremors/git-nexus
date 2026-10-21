@@ -223,7 +223,11 @@ impl Nexus {
         self.jobs.working(key)
     }
 
-    pub(super) fn start_request(&mut self, mut request: crate::jobs::Request, cx: &mut Context<Self>) {
+    pub(super) fn start_request(
+        &mut self,
+        mut request: crate::jobs::Request,
+        cx: &mut Context<Self>,
+    ) {
         let job = std::mem::replace(&mut request.job, Job::Load);
         let adding_repository = matches!(&job, Job::AddLocal(..) | Job::Clone(..));
         let reload_watchlist = matches!(
@@ -551,7 +555,12 @@ impl Nexus {
         }
     }
 
-    pub(super) fn notify_user(&mut self, message: impl Into<String>, error: bool, cx: &mut Context<Self>) {
+    pub(super) fn notify_user(
+        &mut self,
+        message: impl Into<String>,
+        error: bool,
+        cx: &mut Context<Self>,
+    ) {
         self.next_notice += 1;
         let id = self.next_notice;
         self.notices.push(Notice {

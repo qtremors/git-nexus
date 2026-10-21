@@ -18,6 +18,8 @@ pub struct Store {
 }
 
 impl Store {
+    /// Open another connection to this initialized store without creating or
+    /// migrating anything. Each worker owns its connection and uses WAL reads.
     pub fn fork(&self) -> Result<Self> {
         let db = Connection::open_with_flags(
             self.directory.join("gitnexus.db"),
@@ -209,7 +211,6 @@ impl Store {
         self.db.execute("DELETE FROM system_logs WHERE id NOT IN(SELECT id FROM system_logs ORDER BY id DESC LIMIT 1000)",[])?;
         Ok(())
     }
-
     pub fn logs(&self) -> Result<Vec<LogEntry>> {
         let mut statement = self.db.prepare(
             "SELECT timestamp,level,message FROM system_logs ORDER BY id DESC LIMIT 100",
@@ -224,7 +225,6 @@ impl Store {
             })?
             .collect::<rusqlite::Result<Vec<_>>>()?)
     }
-
     pub fn clear_logs(&self) -> Result<()> {
         self.db.execute("DELETE FROM system_logs", [])?;
         Ok(())
@@ -280,7 +280,6 @@ impl Store {
             .execute("DELETE FROM tracked_repos WHERE id=?", [id])?;
         Ok(())
     }
-
     pub fn update_version(&self, id: i64, latest: Option<&str>) -> Result<()> {
         self.db.execute(
             "UPDATE tracked_repos SET latest_version=? WHERE id=?",
@@ -288,12 +287,10 @@ impl Store {
         )?;
         Ok(())
     }
-
     pub fn mark_current(&self, id: i64) -> Result<()> {
         self.db.execute("UPDATE tracked_repos SET current_version=COALESCE(latest_version,current_version) WHERE id=?", [id])?;
         Ok(())
     }
-
     pub fn set_current_version(&self, id: i64, version: &str) -> Result<()> {
         self.db.execute(
             "UPDATE tracked_repos SET current_version=? WHERE id=?",

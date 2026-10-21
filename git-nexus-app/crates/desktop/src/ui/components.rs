@@ -186,7 +186,6 @@ pub(super) fn language_color(language: &str) -> u32 {
     }
 }
 
-
 impl Nexus {
     pub(super) fn action(
         &self,

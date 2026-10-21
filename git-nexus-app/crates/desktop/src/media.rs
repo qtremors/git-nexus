@@ -60,7 +60,10 @@ impl HttpClient for MediaClient {
                 public_image_url(&url)?;
                 let response = client
                     .get(url)
-                    .header("User-Agent", concat!("GitNexus/", env!("CARGO_PKG_VERSION"), " native"))
+                    .header(
+                        "User-Agent",
+                        concat!("GitNexus/", env!("CARGO_PKG_VERSION"), " native"),
+                    )
                     .send()?
                     .error_for_status()?;
                 let mime = response.headers().get("content-type").cloned();

@@ -1,10 +1,14 @@
 # GitNexus Changelog
 
 > **Project:** GitNexus
-> **Version:** 0.2.5
-> **Last Updated:** 2026-10-05
+> **Version:** 0.2.6
+> **Last Updated:** 2026-10-21
 
 ---
+
+## [0.2.6] - 2026-10-21
+
+- Added desktop regression coverage and current product, architecture, privacy and local verification guidance.
 
 ## [0.2.5] - 2026-10-05
 
@@ -105,4 +109,3 @@
 ## [0.0.1] - 2025-11-20
 
 - Established the Rust workspace, shared models, pinned dependencies and local build configuration.
-

@@ -1,3 +1,4 @@
+mod components;
 #[path = "views/contributions.rs"]
 mod contributions;
 #[path = "views/dialogs.rs"]
@@ -8,19 +9,18 @@ mod discovery;
 mod environment;
 #[path = "views/home.rs"]
 mod home;
+mod navigation;
+mod render;
 #[path = "views/replay.rs"]
 mod replay;
 #[path = "views/repository_detail.rs"]
 mod repository_detail;
+mod runtime;
 #[path = "views/settings.rs"]
 mod settings;
+mod state;
 #[path = "views/watchlist.rs"]
 mod watchlist;
-mod components;
-mod navigation;
-mod render;
-mod runtime;
-mod state;
 
 use crate::service::{AssetDownload, Change, Job, Outcome, Services, Snapshot};
 use anyhow::{Result, bail};

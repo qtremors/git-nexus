@@ -99,4 +99,3 @@ pub struct Nexus {
     pub(super) next_notice: u64,
     pub(super) show_search_history: bool,
 }
-

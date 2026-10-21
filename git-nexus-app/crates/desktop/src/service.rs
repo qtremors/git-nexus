@@ -516,3 +516,159 @@ impl Services {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{fs, process::Command};
+
+    #[test]
+    fn repository_readme_is_independent_of_commit_failures() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let mut service = Services::open(directory.path().to_path_buf())?;
+        let repo = GitHubRepo {
+            name: "project".into(),
+            full_name: "fixture/project".into(),
+            ..Default::default()
+        };
+        service.store.cache_put(
+            "readme:fixture/project",
+            &serde_json::json!("# README remains available"),
+            60,
+        )?;
+        service.store.cache_put(
+            "github:/repos/fixture/project/commits?per_page=100&page=1",
+            &serde_json::json!("invalid commit response"),
+            60,
+        )?;
+        let readme = service.execute(Job::Detail(repo.clone()))?;
+        ensure!(
+            matches!(readme.change, Change::Detail(_, ref content) if content == "# README remains available")
+        );
+        ensure!(service.execute(Job::RemoteCommits(repo, 1, false)).is_err());
+        Ok(())
+    }
+
+    #[test]
+    fn discovery_overview_and_watchtower_use_cached_inline_content() -> Result<()> {
+        let directory = tempfile::tempdir()?;
+        let mut services = Services::open(directory.path().to_path_buf())?;
+        ensure!(services.snapshot()?.theme == "default");
+        services.execute(Job::Theme("dracula".into()))?;
+        ensure!(services.snapshot()?.theme == "dracula");
+        services.store.cache_put(
+            "readme:sample/sample",
+            &serde_json::json!("# Profile README"),
+            60,
+        )?;
+        let outcome = services.execute(Job::ProfileReadme("sample".into(), false))?;
+        ensure!(
+            matches!(outcome.change, Change::ProfileReadme(_, ref content) if content=="# Profile README")
+        );
+        services
+            .store
+            .watch("sample", "project", &GitHubRepo::default(), Some("v1"))?;
+        services.store.cache_put("github:/repos/sample/project/releases?per_page=30", &serde_json::json!([{"id":1,"tag_name":"v1","html_url":"https://github.com/sample/project/releases/tag/v1","assets":[]}]),60)?;
+        let outcome = services.execute(Job::WatchlistReleases)?;
+        let Change::WatchlistReleases(releases) = outcome.change else {
+            anyhow::bail!("Expected inline Watchtower releases");
+        };
+        ensure!(
+            releases.len() == 1
+                && releases[0].0 == "sample/project"
+                && releases[0].1[0].tag_name == "v1"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn desktop_jobs_keep_storage_replay_and_preferences_in_sync() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let source = dir.path().join("repo");
+        fs::create_dir(&source)?;
+        fs::write(source.join("index.html"), "<h1>Desktop</h1>")?;
+        fs::write(source.join("README.md"), "# Rendered README")?;
+        for args in [
+            vec!["init", "-q"],
+            vec!["add", "."],
+            vec![
+                "-c",
+                "user.name=Desktop Test",
+                "-c",
+                "user.email=test@example.com",
+                "commit",
+                "-qm",
+                "Desktop fixture",
+            ],
+        ] {
+            ensure!(
+                Command::new("git")
+                    .arg("-C")
+                    .arg(&source)
+                    .args(args)
+                    .status()?
+                    .success(),
+                "Fixture Git failed"
+            );
+        }
+        let mut service = Services::open(dir.path().join("data"))?;
+        let added = service.execute(Job::AddLocal(source.clone()))?;
+        let repo = added.snapshot.repositories[0].clone();
+        ensure!(added.snapshot.last_repo_id == Some(repo.id));
+        let Change::Commits(_, commits, 1, 1) = added.change else {
+            anyhow::bail!("Expected first commit page");
+        };
+        let hash = commits[0].hash.clone();
+        let markdown =
+            service.execute(Job::File(repo.clone(), hash.clone(), "README.md".into()))?;
+        ensure!(
+            matches!(markdown.change, Change::Text(_, ref content, false) if content == "# Rendered README")
+        );
+        let other_path = dir.path().join("other");
+        ensure!(
+            Command::new("git")
+                .args(["clone", "--quiet", "--local"])
+                .arg(&source)
+                .arg(&other_path)
+                .status()?
+                .success()
+        );
+        let other = service.store.add_repository(&other_path)?;
+        let removed = service.execute(Job::RemoveLocal(other.id))?;
+        ensure!(removed.snapshot.last_repo_id == Some(repo.id));
+        let vars = vec![EnvVar {
+            key: "MODE".into(),
+            value: "test".into(),
+        }];
+        service.execute(Job::SaveEnv("project".into(), repo.id, String::new(), vars))?;
+        let mut worker = service.fork()?;
+        let before = service.snapshot()?.revision;
+        let merged = worker.execute(Job::MergedEnv(repo.id, hash.clone()))?;
+        ensure!(merged.snapshot.revision > before);
+        ensure!(service.snapshot()?.revision > merged.snapshot.revision);
+        let Change::Env(_, _, _, values) = merged.change else {
+            anyhow::bail!("Expected merged variables");
+        };
+        ensure!(values[0].value == "test");
+        let start = worker.execute(Job::Start(repo.clone(), hash, None))?;
+        ensure!(start.snapshot.servers[0].status == "running");
+        ensure!(service.snapshot()?.servers[0].status == "running");
+        let token = service.execute(Job::SaveToken("fixture-only-credential".into()))?;
+        ensure!(matches!(token.change, Change::TokenSaved) && token.snapshot.token_active);
+        let cleared = service.execute(Job::SaveToken(String::new()))?;
+        ensure!(matches!(cleared.change, Change::TokenSaved) && !cleared.snapshot.token_active);
+        service.execute(Job::Theme("light".into()))?;
+        let download = dir.path().join("downloads");
+        let preferences = service.execute(Job::SavePath(download.to_string_lossy().into()))?;
+        ensure!(preferences.snapshot.theme == "light");
+        ensure!(Path::new(&preferences.snapshot.download_path).is_dir());
+        let removed = service.execute(Job::RemoveLocal(repo.id))?;
+        ensure!(removed.snapshot.repositories.is_empty() && removed.snapshot.servers.is_empty());
+        ensure!(worker.snapshot()?.servers.is_empty());
+        ensure!(source.join("index.html").exists());
+        ensure!(service.store.env_vars("project", repo.id, "")?.is_empty());
+        ensure!(!removed.snapshot.logs.is_empty());
+        service.execute(Job::ClearLogs)?;
+        ensure!(service.snapshot()?.logs.is_empty());
+        Ok(())
+    }
+}

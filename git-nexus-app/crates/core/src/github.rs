@@ -54,7 +54,10 @@ impl GitHub {
         let mut request = self
             .client
             .get(format!("{}{endpoint}", self.base))
-            .header(USER_AGENT, concat!("GitNexus/", env!("CARGO_PKG_VERSION"), " native"))
+            .header(
+                USER_AGENT,
+                concat!("GitNexus/", env!("CARGO_PKG_VERSION"), " native"),
+            )
             .header(ACCEPT, accept);
         if let Some(token) = token {
             request = request.bearer_auth(token);
@@ -417,7 +420,10 @@ impl GitHub {
         let mut request = self
             .client
             .get(url)
-            .header(USER_AGENT, concat!("GitNexus/", env!("CARGO_PKG_VERSION"), " native"))
+            .header(
+                USER_AGENT,
+                concat!("GitNexus/", env!("CARGO_PKG_VERSION"), " native"),
+            )
             .header(ACCEPT, "application/octet-stream")
             .timeout(Duration::from_secs(300));
         if Url::parse(url)?.host_str() == Some("api.github.com")
